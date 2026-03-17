@@ -363,6 +363,111 @@ canvas { width: 100% !important; }
 /* Template download hint */
 .template-hint { background:rgba(124,92,252,0.06); border:1px solid rgba(124,92,252,0.2); border-radius:var(--radius-sm); padding:10px 14px; margin-top:14px; font-size:11px; color:var(--muted); display:flex; align-items:center; gap:10px; }
 .template-hint a { color:var(--accent); cursor:pointer; text-decoration:none; font-weight:600; }
+
+/* ═══════════════════════════════════
+   STOCKS PAGE — Wall Street Theme
+═══════════════════════════════════ */
+:root {
+  --stock-bg: #060d1a;
+  --stock-surface: #0a1628;
+  --stock-card: #0d1f3c;
+  --stock-border: #1a3a5c;
+  --stock-up: #00d09c;
+  --stock-down: #ff4757;
+  --stock-neutral: #5cc8fc;
+  --stock-accent: #ffd700;
+  --stock-text: #e8f4fd;
+  --stock-muted: #4a7a9b;
+}
+.stocks-page { background: var(--stock-bg); min-height: 100vh; padding: 14px 16px 20px; }
+.broker-bar { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; margin-bottom:12px; }
+.broker-bar::-webkit-scrollbar { display:none; }
+.broker-chip { flex-shrink:0; display:flex; align-items:center; gap:5px; padding:6px 14px; border-radius:99px; border:1px solid var(--stock-border); background:transparent; color:var(--stock-muted); font-size:11px; font-weight:500; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:'Sora',sans-serif; }
+.broker-chip.active { background:rgba(255,215,0,0.15); border-color:var(--stock-accent); color:var(--stock-accent); }
+.broker-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.stock-summary-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+.stock-sum-card { background:var(--stock-card); border:1px solid var(--stock-border); border-radius:12px; padding:12px 14px; }
+.stock-sum-val { font-size:16px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+.stock-sum-lbl { font-size:9px; color:var(--stock-muted); margin-top:3px; text-transform:uppercase; letter-spacing:0.8px; }
+.stock-sum-change { font-size:10px; font-family:'JetBrains Mono',monospace; margin-top:2px; }
+.stock-subtabs { display:flex; gap:6px; margin-bottom:12px; overflow-x:auto; scrollbar-width:none; }
+.stock-subtabs::-webkit-scrollbar { display:none; }
+.stock-subtab { flex-shrink:0; padding:7px 14px; border-radius:99px; border:1px solid var(--stock-border); background:transparent; color:var(--stock-muted); font-size:11px; font-weight:500; cursor:pointer; transition:all 0.2s; font-family:'Sora',sans-serif; }
+.stock-subtab.active { background:var(--stock-accent); color:#0a0a0a; border-color:var(--stock-accent); }
+/* Stock card */
+.stock-card { background:var(--stock-card); border:1px solid var(--stock-border); border-radius:14px; padding:14px; margin-bottom:10px; cursor:pointer; transition:all 0.2s; }
+.stock-card:active { transform:scale(0.98); }
+.stock-card:hover { border-color:var(--stock-accent); }
+.stock-card-top { display:flex; align-items:flex-start; gap:10px; }
+.stock-ticker { font-size:14px; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--stock-text); }
+.stock-name-sm { font-size:10px; color:var(--stock-muted); margin-top:1px; }
+.stock-broker-badge { font-size:9px; padding:2px 7px; border-radius:99px; font-weight:600; margin-top:3px; display:inline-block; }
+.badge-groww { background:rgba(0,208,156,0.15); color:#00d09c; }
+.badge-zerodha { background:rgba(56,126,209,0.15); color:#387ed1; }
+.badge-upstox { background:rgba(111,87,233,0.15); color:#6f57e9; }
+.stock-qty-price { font-size:11px; color:var(--stock-muted); font-family:'JetBrains Mono',monospace; margin-top:4px; }
+.stock-pnl { text-align:right; }
+.stock-pnl-val { font-size:15px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+.stock-pnl-pct { font-size:10px; font-family:'JetBrains Mono',monospace; }
+.stock-up-clr { color:var(--stock-up); }
+.stock-dn-clr { color:var(--stock-down); }
+.stock-mini-bar { height:3px; background:var(--stock-border); border-radius:99px; margin-top:8px; overflow:hidden; }
+.stock-mini-fill { height:100%; border-radius:99px; transition:width 0.5s; }
+/* Trade row */
+.trade-row { background:var(--stock-surface); border:1px solid var(--stock-border); border-radius:10px; padding:10px 12px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+.trade-type-badge { font-size:10px; font-weight:700; padding:3px 8px; border-radius:99px; flex-shrink:0; }
+.trade-buy { background:rgba(0,208,156,0.15); color:var(--stock-up); }
+.trade-sell { background:rgba(255,71,87,0.15); color:var(--stock-down); }
+.trade-info { flex:1; min-width:0; }
+.trade-ticker { font-size:12px; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--stock-text); }
+.trade-meta { font-size:10px; color:var(--stock-muted); margin-top:2px; font-family:'JetBrains Mono',monospace; }
+.trade-amount { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; color:var(--stock-text); text-align:right; }
+.trade-date { font-size:9px; color:var(--stock-muted); margin-top:2px; text-align:right; }
+.trade-del { background:none; border:none; color:var(--stock-muted); cursor:pointer; font-size:14px; padding:4px; flex-shrink:0; }
+/* Deposit card stocks */
+.sdep-card { background:var(--stock-card); border:1px solid var(--stock-border); border-radius:14px; padding:14px; margin-bottom:10px; }
+.sdep-header { display:flex; justify-content:space-between; align-items:flex-start; }
+.sdep-label { font-size:13px; font-weight:600; color:var(--stock-text); }
+.sdep-date { font-size:10px; color:var(--stock-muted); font-family:'JetBrains Mono',monospace; margin-top:2px; }
+.sdep-amount { font-size:18px; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--stock-up); }
+.sdep-used { font-size:10px; color:var(--stock-muted); text-align:right; margin-top:2px; }
+.sdep-progress { height:4px; background:var(--stock-border); border-radius:99px; overflow:hidden; margin:10px 0; }
+.sdep-progress-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--stock-up),var(--stock-accent)); }
+.sdep-trades { margin-top:8px; }
+/* Stock journey tree */
+.journey-wrap { padding:4px 0; }
+.journey-node { position:relative; padding-left:28px; margin-bottom:0; }
+.journey-node::before { content:''; position:absolute; left:10px; top:0; bottom:0; width:2px; background:var(--stock-border); }
+.journey-node:last-child::before { height:24px; }
+.journey-dot { position:absolute; left:4px; top:16px; width:14px; height:14px; border-radius:50%; border:2px solid var(--stock-border); background:var(--stock-bg); z-index:1; display:flex; align-items:center; justify-content:center; }
+.journey-dot-buy { border-color:var(--stock-up); background:rgba(0,208,156,0.2); }
+.journey-dot-sell { border-color:var(--stock-down); background:rgba(255,71,87,0.2); }
+.journey-dot-avg { border-color:var(--stock-accent); background:rgba(255,215,0,0.2); }
+.journey-card { background:var(--stock-card); border:1px solid var(--stock-border); border-radius:10px; padding:10px 12px; margin:6px 0; }
+.journey-date { font-size:9px; color:var(--stock-muted); font-family:'JetBrains Mono',monospace; margin-bottom:4px; }
+.journey-action { font-size:12px; font-weight:600; }
+.journey-detail { font-size:11px; color:var(--stock-muted); margin-top:3px; font-family:'JetBrains Mono',monospace; line-height:1.6; }
+.journey-pnl { margin-top:6px; padding-top:6px; border-top:1px solid var(--stock-border); font-size:12px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+.journey-avg-node { background:rgba(255,215,0,0.06); border:1px dashed rgba(255,215,0,0.3); border-radius:10px; padding:8px 12px; margin:4px 0; font-size:11px; color:var(--stock-accent); font-family:'JetBrains Mono',monospace; }
+/* Ticker summary in detail */
+.sdm-summary { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-top:10px; }
+.sdm-stat { flex-shrink:0; background:rgba(255,255,255,0.04); border:1px solid var(--stock-border); border-radius:8px; padding:8px 12px; text-align:center; min-width:80px; }
+.sdm-stat-val { font-size:13px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+.sdm-stat-lbl { font-size:8px; color:var(--stock-muted); margin-top:2px; text-transform:uppercase; }
+/* Empty stocks */
+.stocks-empty { text-align:center; padding:40px 20px; }
+.stocks-empty-icon { font-size:48px; display:block; margin-bottom:14px; }
+.stocks-empty-title { font-size:16px; font-weight:700; color:var(--stock-text); margin-bottom:8px; }
+.stocks-empty-sub { font-size:12px; color:var(--stock-muted); line-height:1.7; margin-bottom:20px; }
+.stock-action-row { display:flex; gap:8px; margin-bottom:12px; }
+.stock-add-btn { flex:1; padding:11px; background:rgba(0,208,156,0.1); border:1px solid rgba(0,208,156,0.3); border-radius:10px; color:var(--stock-up); font-size:12px; font-weight:600; font-family:'Sora',sans-serif; cursor:pointer; transition:all 0.2s; text-align:center; }
+.stock-add-btn:active { background:rgba(0,208,156,0.2); }
+.stock-import-btn { flex:1; padding:11px; background:rgba(255,215,0,0.08); border:1px solid rgba(255,215,0,0.25); border-radius:10px; color:var(--stock-accent); font-size:12px; font-weight:600; font-family:'Sora',sans-serif; cursor:pointer; transition:all 0.2s; text-align:center; }
+.stock-import-btn:active { background:rgba(255,215,0,0.15); }
+/* ticker price input */
+.stock-ltp-row { display:flex; align-items:center; gap:8px; background:rgba(255,215,0,0.06); border:1px solid rgba(255,215,0,0.2); border-radius:10px; padding:8px 12px; margin-bottom:12px; }
+.stock-ltp-label { font-size:11px; color:var(--stock-accent); flex:1; }
+.stock-ltp-input { background:transparent; border:none; color:var(--stock-accent); font-size:14px; font-weight:700; font-family:'JetBrains Mono',monospace; outline:none; width:100px; text-align:right; }
 </style>
 </head>
 <body>
@@ -391,10 +496,19 @@ canvas { width: 100% !important; }
       <span class="budget-label" id="budgetMonthLabel">Month Total <button class="budget-edit-btn" onclick="openBudgetModal()">✏️ Edit</button></span>
       <span class="budget-total" id="monthTotal">₹0</span>
     </div>
+    <div id="currentMonthName" style="font-size:10px;color:var(--muted);text-align:right;margin-top:-6px;margin-bottom:6px;font-family:'JetBrains Mono',monospace"></div>
     <div class="progress-bar"><div class="progress-fill" id="budgetBar" style="width:0%"></div></div>
     <div class="budget-sub">
       <span id="spentLabel">spent ₹0</span>
       <span id="budgetLabel">budget ₹5,000</span>
+    </div>
+    <!-- Balance row with eye toggle -->
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Account Balance</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="balanceDisplay" style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--green)">••••••</span>
+        <button id="balanceEyeBtn" onclick="toggleBalance()" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:14px;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">👁</button>
+      </div>
     </div>
   </div>
 
@@ -403,6 +517,7 @@ canvas { width: 100% !important; }
     <button class="nav-tab" onclick="showPage('deposits')">💰 Deposits</button>
     <button class="nav-tab" onclick="showPage('log')">📋 Log</button>
     <button class="nav-tab" onclick="showPage('charts')">📊 Charts</button>
+    <button class="nav-tab" onclick="showPage('stocks')">📈 Stocks</button>
     <button class="nav-tab" onclick="showPage('settings')">⚙️ Settings</button>
   </div>
 </div>
@@ -554,6 +669,44 @@ canvas { width: 100% !important; }
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════ -->
+<!-- PAGE: STOCKS -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="page" id="page-stocks">
+  <div class="stocks-page">
+
+    <!-- Broker Tabs -->
+    <div class="broker-bar">
+      <button class="broker-chip active" id="bchip_all" onclick="setActiveBroker('all',this)">All Brokers</button>
+      <button class="broker-chip" id="bchip_groww" onclick="setActiveBroker('groww',this)">
+        <span class="broker-dot" style="background:#00d09c"></span>Groww
+      </button>
+      <button class="broker-chip" id="bchip_zerodha" onclick="setActiveBroker('zerodha',this)">
+        <span class="broker-dot" style="background:#387ed1"></span>Zerodha
+      </button>
+      <button class="broker-chip" id="bchip_upstox" onclick="setActiveBroker('upstox',this)">
+        <span class="broker-dot" style="background:#6f57e9"></span>Upstox
+      </button>
+      <button class="broker-chip" onclick="openAddBrokerModal()">+ Broker</button>
+    </div>
+
+    <!-- Stock Summary Cards -->
+    <div class="stock-summary-row" id="stockSummaryRow"></div>
+
+    <!-- Stock Sub Tabs -->
+    <div class="stock-subtabs">
+      <button class="stock-subtab active" id="sst_portfolio" onclick="setStockSubtab('portfolio',this)">📊 Portfolio</button>
+      <button class="stock-subtab" id="sst_bought" onclick="setStockSubtab('bought',this)">🟢 Bought</button>
+      <button class="stock-subtab" id="sst_sold" onclick="setStockSubtab('sold',this)">🔴 Sold</button>
+      <button class="stock-subtab" id="sst_deposits" onclick="setStockSubtab('sdeposits',this)">💰 Deposits</button>
+    </div>
+
+    <!-- Stock Content -->
+    <div id="stockContent"></div>
+
+  </div>
+</div>
+
 </div><!-- /app -->
 
 <!-- ── BOTTOM NAV ── -->
@@ -562,6 +715,7 @@ canvas { width: 100% !important; }
   <button class="bn-item" onclick="showPage('deposits')" id="bnDeposits"><span class="bn-icon">💰</span><span class="bn-label">Deposits</span></button>
   <button class="bn-item" onclick="showPage('log')" id="bnLog"><span class="bn-icon">📋</span><span class="bn-label">Log</span></button>
   <button class="bn-item" onclick="showPage('charts')" id="bnCharts"><span class="bn-icon">📊</span><span class="bn-label">Charts</span></button>
+  <button class="bn-item" onclick="showPage('stocks')" id="bnStocks"><span class="bn-icon">📈</span><span class="bn-label">Stocks</span></button>
   <button class="bn-item" onclick="showPage('settings')" id="bnSettings"><span class="bn-icon">⚙️</span><span class="bn-label">Settings</span></button>
 </div>
 
@@ -642,6 +796,106 @@ canvas { width: 100% !important; }
   </div>
 </div>
 
+<!-- ── STOCK TRADE MODAL ── -->
+<div class="modal-overlay" id="stockTradeOverlay" onclick="if(event.target===this)closeStockTradeModal()">
+  <div class="past-modal" id="stockTradeModal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="stModalTitle">📈 Add Trade</div>
+    <div class="modal-sub" style="margin-bottom:14px" id="stModalSub">Record a buy or sell transaction</div>
+    <div class="past-row">
+      <div class="past-field">
+        <label>Type</label>
+        <select id="stType" onchange="updateStockModalType()">
+          <option value="buy">🟢 Buy</option>
+          <option value="sell">🔴 Sell</option>
+        </select>
+      </div>
+      <div class="past-field">
+        <label>Broker</label>
+        <select id="stBroker">
+          <option value="groww">Groww</option>
+          <option value="zerodha">Zerodha</option>
+          <option value="upstox">Upstox</option>
+        </select>
+      </div>
+    </div>
+    <div class="past-field"><label>Stock Symbol / Name</label><input type="text" id="stSymbol" placeholder="e.g. RELIANCE, TCS, INFY" style="text-transform:uppercase" /></div>
+    <div class="past-row">
+      <div class="past-field"><label>Date</label><input type="date" id="stDate" /></div>
+      <div class="past-field"><label>Linked Deposit (optional)</label><select id="stDepositLink"><option value="">— None —</option></select></div>
+    </div>
+    <div class="past-row">
+      <div class="past-field"><label>Quantity</label><input type="number" id="stQty" placeholder="10" inputmode="decimal" /></div>
+      <div class="past-field"><label>Price per Share (₹)</label><input type="number" id="stPrice" placeholder="250.50" inputmode="decimal" /></div>
+    </div>
+    <div class="past-field"><label>Charges / Brokerage (₹)</label><input type="number" id="stCharges" placeholder="0" inputmode="decimal" /></div>
+    <div class="past-field"><label>Note (optional)</label><textarea id="stNote" rows="2" placeholder="e.g. bought on dip, stop loss hit..."></textarea></div>
+    <div id="stTotalPreview" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:8px;font-size:12px;color:var(--muted);display:none"></div>
+    <button class="confirm-btn" id="stConfirmBtn" onclick="confirmStockTrade()" style="background:var(--green)">Save Trade</button>
+    <button class="cancel-btn" onclick="closeStockTradeModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- ── STOCK DEPOSIT MODAL ── -->
+<div class="modal-overlay" id="stockDepositOverlay" onclick="if(event.target===this)closeStockDepositModal()">
+  <div class="past-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💰 Add Investment Deposit</div>
+    <div class="modal-sub" style="margin-bottom:14px">Money you transferred to your demat/trading account</div>
+    <div class="past-field"><label>Broker</label>
+      <select id="sdBroker">
+        <option value="groww">Groww</option><option value="zerodha">Zerodha</option><option value="upstox">Upstox</option>
+      </select>
+    </div>
+    <div class="past-row">
+      <div class="past-field"><label>Date</label><input type="date" id="sdDate" /></div>
+      <div class="past-field"><label>Amount (₹)</label><input type="number" id="sdAmount" placeholder="10000" inputmode="numeric" /></div>
+    </div>
+    <div class="past-field"><label>Label</label><input type="text" id="sdLabel" placeholder="e.g. March Investment, Salary Savings..." /></div>
+    <div class="past-field"><label>Note</label><textarea id="sdNote" rows="2" placeholder="Optional notes..."></textarea></div>
+    <button class="confirm-btn" onclick="confirmStockDeposit()" style="background:var(--green)">💰 Save Deposit</button>
+    <button class="cancel-btn" onclick="closeStockDepositModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- ── STOCK DETAIL MODAL ── -->
+<div class="import-modal-overlay" id="stockDetailOverlay">
+  <div class="import-modal">
+    <div class="import-header" style="background:var(--stock-bg,#0a1628)">
+      <div class="import-header-top">
+        <div class="import-title" id="sdModalTitle" style="color:#e8f4fd">Stock Journey</div>
+        <button class="import-close" onclick="closeStockDetailModal()">✕</button>
+      </div>
+      <div id="sdModalSummary"></div>
+    </div>
+    <div class="import-body" id="sdModalBody" style="background:#0a1628;padding:16px"></div>
+    <div class="import-footer" style="background:#0d1f3c;border-top:1px solid #1a3a5c">
+      <button class="import-btn-secondary" onclick="closeStockDetailModal()" style="border-color:#1a3a5c;color:#7b9ab0">Close</button>
+      <button class="import-btn-primary" onclick="openStockTradeModalFor(currentStockSymbol,'buy')" style="background:linear-gradient(135deg,#00b894,#00cec9)">+ Add Trade</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── STOCK PDF IMPORT MODAL ── -->
+<div class="import-modal-overlay" id="stockPdfOverlay">
+  <div class="import-modal">
+    <div class="import-header">
+      <div class="import-header-top">
+        <div class="import-title">📑 Import <span>Statement</span></div>
+        <button class="import-close" onclick="closeStockPdfModal()">✕</button>
+      </div>
+      <div class="import-steps">
+        <div class="import-step active" id="spstep1">1. Upload</div>
+        <div class="import-step" id="spstep2">2. Parse</div>
+        <div class="import-step" id="spstep3">3. Review</div>
+        <div class="import-step" id="spstep4">4. Done</div>
+      </div>
+    </div>
+    <div class="import-body" id="spBody"></div>
+    <div class="import-footer" id="spFooter"></div>
+  </div>
+</div>
+
 <!-- ── CSV IMPORT MODAL ── -->
 <div class="import-modal-overlay" id="importModalOverlay">
   <div class="import-modal" id="importModal">
@@ -717,6 +971,7 @@ let state = {
 let logRangeFilter = 'all';
 let logMonthFilter = 'all';
 let chartMonthFilter = 'all';
+let balanceVisible = false;
 
 function loadState() {
   try {
@@ -799,6 +1054,8 @@ function renderHeader() {
 
   const curMonth = getCurrentMonth();
   document.getElementById('monthLabel').textContent = getMonthLabel(curMonth);
+  const monthNameEl = document.getElementById('currentMonthName');
+  if (monthNameEl) monthNameEl.textContent = getMonthLabel(curMonth);
 
   const tod = totalForDate(todayStr(), state.activeAccount);
   document.getElementById('todayTotal').textContent = fmt(tod);
@@ -819,6 +1076,7 @@ function renderHeader() {
 
   renderAccountBar();
   updateActiveDepositBadge();
+  updateBalanceDisplay();
 }
 
 function renderAccountBar() {
@@ -850,6 +1108,22 @@ function updateActiveDepositBadge() {
   } else {
     badge.textContent = '';
   }
+}
+
+function updateBalanceDisplay() {
+  const el = document.getElementById('balanceDisplay');
+  if (!el) return;
+  const acc = activeAccount();
+  const balance = acc.balance || 0;
+  el.textContent = balanceVisible ? fmt(balance) : '••••••';
+  el.style.color = balance >= 0 ? 'var(--green)' : 'var(--accent2)';
+}
+
+function toggleBalance() {
+  balanceVisible = !balanceVisible;
+  const btn = document.getElementById('balanceEyeBtn');
+  if (btn) btn.style.borderColor = balanceVisible ? 'var(--green)' : 'var(--border)';
+  updateBalanceDisplay();
 }
 
 // ═══════════════════════════════════════════════════
@@ -1123,6 +1397,17 @@ function deleteDeposit(id) {
   saveState(); renderDeposits(); showToast('Deposit removed');
 }
 
+function renderGroupedEntries(entries) {
+  const groups = {};
+  entries.forEach(e => { if (!groups[e.date]) groups[e.date] = []; groups[e.date].push(e); });
+  return Object.entries(groups).sort((a,b)=>b[0].localeCompare(a[0])).map(([date, grpEntries]) => {
+    const d = new Date(date + 'T00:00:00');
+    const label = d.toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short', year:'2-digit'});
+    const total = grpEntries.reduce((s,e)=>s+e.amount,0);
+    return `<div class="date-group-header"><span class="date-group-label">${label}</span><span class="date-group-total">${fmt(total)}</span></div>${grpEntries.map(e=>logRow(e)).join('')}`;
+  }).join('');
+}
+
 function renderDepositDetail(depId) {
   const el = document.getElementById('depositDetail');
   if (!depId) { el.innerHTML = `<div class="empty-log" style="padding:20px"><span class="e-icon" style="font-size:24px">👆</span>Select a deposit above to see breakdown</div>`; return; }
@@ -1169,7 +1454,7 @@ function renderDepositDetail(depId) {
     </div>`).join('')}
   </div>
   <div class="section-label" style="margin-top:10px">Entries in this period</div>
-  <div class="log-list">${periodEntries.length===0?`<div class="empty-log"><span class="e-icon">📭</span>No expenses in this period.</div>`:periodEntries.map(e=>logRow(e)).join('')}</div>`;
+  <div class="log-list">${periodEntries.length===0?`<div class="empty-log"><span class="e-icon">📭</span>No expenses in this period.</div>`:renderGroupedEntries(periodEntries)}</div>`;
 }
 
 function openDepositModal() {
@@ -1874,7 +2159,7 @@ function clearAllData() {
 // ═══════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════
-const PAGES = ['home','deposits','log','charts','settings'];
+const PAGES = ['home','deposits','log','charts','stocks','settings'];
 
 function showPage(name) {
   PAGES.forEach(p => {
@@ -1890,6 +2175,7 @@ function showPage(name) {
   if (name==='log') renderFullLog();
   if (name==='settings') renderSettings();
   if (name==='deposits') renderDeposits();
+  if (name==='stocks') renderStocksPage();
 }
 
 // ═══════════════════════════════════════════════════
@@ -2445,9 +2731,745 @@ function downloadTemplate() {
   showToast('Template downloaded!');
 }
 
+// ═══════════════════════════════════════════════════════════
+// STOCKS ENGINE
+// ═══════════════════════════════════════════════════════════
+
+// Stock state lives inside main state
+// state.stockTrades  = [{ id, broker, type:'buy'|'sell', symbol, date, qty, price, charges, note, depositId }]
+// state.stockDeposits= [{ id, broker, date, amount, label, note }]
+
+let activeBrokerFilter = 'all';
+let activeStockSubtab  = 'portfolio';
+let currentStockSymbol = null;
+let stockLTPMap = {}; // symbol -> last traded price (user entered)
+
+function ensureStockState() {
+  if (!state.stockTrades)   state.stockTrades   = [];
+  if (!state.stockDeposits) state.stockDeposits = [];
+}
+
+// ─── Broker helpers ───
+const BROKER_COLORS = { groww:'#00d09c', zerodha:'#387ed1', upstox:'#6f57e9' };
+const BROKER_NAMES  = { groww:'Groww', zerodha:'Zerodha', upstox:'Upstox' };
+
+function brokerBadge(broker) {
+  return `<span class="stock-broker-badge badge-${broker}">${BROKER_NAMES[broker]||broker}</span>`;
+}
+
+// ─── Filtered trades ───
+function filteredTrades() {
+  ensureStockState();
+  if (activeBrokerFilter === 'all') return state.stockTrades;
+  return state.stockTrades.filter(t => t.broker === activeBrokerFilter);
+}
+
+function filteredDeposits() {
+  ensureStockState();
+  if (activeBrokerFilter === 'all') return state.stockDeposits;
+  return state.stockDeposits.filter(d => d.broker === activeBrokerFilter);
+}
+
+// ─── Portfolio computation ───
+// Returns array of { symbol, broker, totalBought, totalSold, avgCost, currentQty, realizedPnL, investedValue, currentValue }
+function computePortfolio() {
+  ensureStockState();
+  const trades = filteredTrades();
+  const map = {};
+
+  trades.forEach(t => {
+    const key = t.symbol.toUpperCase();
+    if (!map[key]) map[key] = { symbol:key, brokers:new Set(), buys:[], sells:[] };
+    map[key].brokers.add(t.broker);
+    if (t.type === 'buy')  map[key].buys.push(t);
+    else                   map[key].sells.push(t);
+  });
+
+  return Object.values(map).map(s => {
+    const totalBoughtQty  = s.buys.reduce((a,t)=>a+t.qty,0);
+    const totalSoldQty    = s.sells.reduce((a,t)=>a+t.qty,0);
+    const currentQty      = totalBoughtQty - totalSoldQty;
+    const totalBoughtVal  = s.buys.reduce((a,t)=>a+(t.qty*t.price)+t.charges,0);
+    const totalSoldVal    = s.sells.reduce((a,t)=>a+(t.qty*t.price)-t.charges,0);
+    const avgCost         = totalBoughtQty > 0 ? totalBoughtVal / totalBoughtQty : 0;
+
+    // Realized P&L: for each sell, profit = (sellPrice - avgCostAtTime) * qty
+    // Simple FIFO approximation using overall avg
+    const realizedPnL = s.sells.reduce((a,t)=>a+(t.qty*(t.price - avgCost)),0);
+
+    const investedValue   = currentQty * avgCost;
+    const ltp             = stockLTPMap[s.symbol] || null;
+    const currentValue    = ltp ? currentQty * ltp : null;
+    const unrealizedPnL   = currentValue !== null ? currentValue - investedValue : null;
+
+    return {
+      symbol: s.symbol,
+      brokers: [...s.brokers],
+      buys: s.buys,
+      sells: s.sells,
+      totalBoughtQty,
+      totalSoldQty,
+      currentQty,
+      totalBoughtVal,
+      totalSoldVal,
+      avgCost,
+      realizedPnL,
+      investedValue,
+      currentValue,
+      unrealizedPnL,
+      ltp,
+    };
+  }).sort((a,b) => b.investedValue - a.investedValue);
+}
+
+// ─── Summary stats ───
+function computeStockSummary() {
+  const portfolio = computePortfolio();
+  const deposits  = filteredDeposits();
+
+  const totalDeposited  = deposits.reduce((a,d)=>a+d.amount,0);
+  const totalInvested   = portfolio.reduce((a,p)=>a+p.investedValue,0);
+  const totalRealized   = portfolio.reduce((a,p)=>a+p.realizedPnL,0);
+  const totalSoldValue  = filteredTrades().filter(t=>t.type==='sell').reduce((a,t)=>a+(t.qty*t.price)-t.charges,0);
+  const holdings        = portfolio.filter(p=>p.currentQty>0).length;
+
+  return { totalDeposited, totalInvested, totalRealized, totalSoldValue, holdings };
+}
+
+// ─── Render stocks page ───
+function renderStocksPage() {
+  ensureStockState();
+  renderStockSummary();
+  renderStockContent();
+}
+
+function setActiveBroker(broker, el) {
+  activeBrokerFilter = broker;
+  document.querySelectorAll('.broker-chip').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderStocksPage();
+}
+
+function setStockSubtab(tab, el) {
+  activeStockSubtab = tab;
+  document.querySelectorAll('.stock-subtab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderStockContent();
+}
+
+function renderStockSummary() {
+  const s = computeStockSummary();
+  const pnlColor = s.totalRealized >= 0 ? 'var(--stock-up)' : 'var(--stock-down)';
+  const pnlSign  = s.totalRealized >= 0 ? '+' : '';
+
+  document.getElementById('stockSummaryRow').innerHTML = `
+    <div class="stock-sum-card">
+      <div class="stock-sum-val" style="color:var(--stock-up)">₹${fmtStock(s.totalDeposited)}</div>
+      <div class="stock-sum-lbl">Total Deposited</div>
+      <div class="stock-sum-change" style="color:var(--stock-muted)">${s.holdings} holdings active</div>
+    </div>
+    <div class="stock-sum-card">
+      <div class="stock-sum-val" style="color:var(--stock-accent)">₹${fmtStock(s.totalInvested)}</div>
+      <div class="stock-sum-lbl">Currently Invested</div>
+      <div class="stock-sum-change" style="color:var(--stock-muted)">in ${s.holdings} stocks</div>
+    </div>
+    <div class="stock-sum-card">
+      <div class="stock-sum-val" style="color:${pnlColor}">${pnlSign}₹${fmtStock(Math.abs(s.totalRealized))}</div>
+      <div class="stock-sum-lbl">Realized P&L</div>
+      <div class="stock-sum-change" style="color:var(--stock-muted)">from sold trades</div>
+    </div>
+    <div class="stock-sum-card">
+      <div class="stock-sum-val" style="color:var(--stock-neutral)">₹${fmtStock(s.totalSoldValue)}</div>
+      <div class="stock-sum-lbl">Total Withdrawn</div>
+      <div class="stock-sum-change" style="color:var(--stock-muted)">sell proceeds</div>
+    </div>`;
+}
+
+function renderStockContent() {
+  const el = document.getElementById('stockContent');
+  ensureStockState();
+
+  // Action buttons always shown
+  const actionBar = `
+    <div class="stock-action-row">
+      <button class="stock-add-btn" onclick="openStockTradeModal('buy')">🟢 Add Buy</button>
+      <button class="stock-add-btn" onclick="openStockTradeModal('sell')" style="background:rgba(255,71,87,0.1);border-color:rgba(255,71,87,0.3);color:var(--stock-down)">🔴 Add Sell</button>
+    </div>
+    <div class="stock-action-row">
+      <button class="stock-import-btn" onclick="openStockDepositModal()">💰 Add Investment Deposit</button>
+      <button class="stock-import-btn" onclick="openStockPdfModal()" style="background:rgba(92,200,252,0.08);border-color:rgba(92,200,252,0.25);color:var(--stock-neutral)">📑 Import Statement</button>
+    </div>`;
+
+  switch(activeStockSubtab) {
+    case 'portfolio': el.innerHTML = actionBar + renderPortfolioTab(); break;
+    case 'bought':    el.innerHTML = actionBar + renderBoughtTab();    break;
+    case 'sold':      el.innerHTML = actionBar + renderSoldTab();      break;
+    case 'sdeposits': el.innerHTML = actionBar + renderStockDepositsTab(); break;
+  }
+}
+
+// ─── Portfolio tab ───
+function renderPortfolioTab() {
+  const portfolio = computePortfolio().filter(p => p.currentQty > 0);
+  if (portfolio.length === 0) return stocksEmptyState();
+
+  // LTP update row
+  const ltpHtml = `<div class="stock-ltp-row">
+    <span class="stock-ltp-label">📡 Update LTP for P&L estimates</span>
+    <input class="stock-ltp-input" type="number" placeholder="select stock" id="ltpInput" inputmode="decimal" onchange="setLTP()">
+  </div>`;
+
+  return ltpHtml + portfolio.map(p => {
+    const pnlStr   = p.unrealizedPnL !== null
+      ? `${p.unrealizedPnL>=0?'+':''}₹${fmtStock(Math.abs(p.unrealizedPnL))}`
+      : 'LTP needed';
+    const pnlColor = p.unrealizedPnL === null ? 'var(--stock-muted)' : p.unrealizedPnL >= 0 ? 'var(--stock-up)' : 'var(--stock-down)';
+    const pct      = p.unrealizedPnL !== null && p.investedValue > 0
+      ? ((p.unrealizedPnL/p.investedValue)*100).toFixed(2) : null;
+    const maxInv   = portfolio.reduce((a,x)=>Math.max(a,x.investedValue),1);
+
+    return `<div class="stock-card" onclick="openStockDetail('${p.symbol}')">
+      <div class="stock-card-top">
+        <div style="flex:1">
+          <div class="stock-ticker">${p.symbol}</div>
+          <div class="stock-name-sm">${p.currentQty} shares @ avg ₹${fmtStock(p.avgCost)}</div>
+          <div style="margin-top:4px">${p.brokers.map(b=>brokerBadge(b)).join(' ')}</div>
+        </div>
+        <div class="stock-pnl">
+          <div class="stock-pnl-val" style="color:${pnlColor}">${pnlStr}</div>
+          ${pct !== null ? `<div class="stock-pnl-pct" style="color:${pnlColor}">${pct>0?'+':''}${pct}%</div>` : ''}
+          <div style="font-size:10px;color:var(--stock-muted);margin-top:4px;font-family:'JetBrains Mono',monospace">inv ₹${fmtStock(p.investedValue)}</div>
+        </div>
+      </div>
+      <div class="stock-mini-bar">
+        <div class="stock-mini-fill" style="width:${Math.min(100,(p.investedValue/maxInv)*100).toFixed(1)}%;background:${p.unrealizedPnL===null?'var(--stock-muted)':p.unrealizedPnL>=0?'var(--stock-up)':'var(--stock-down)'}"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setLTP() {
+  const input = document.getElementById('ltpInput');
+  const val = parseFloat(input.value);
+  // We need to know which stock — show a select or just apply to last opened
+  if (!isNaN(val) && currentStockSymbol) {
+    stockLTPMap[currentStockSymbol] = val;
+    renderStocksPage();
+    showToast(`LTP set for ${currentStockSymbol}: ₹${val}`);
+  }
+}
+
+function stocksEmptyState() {
+  return `<div class="stocks-empty">
+    <span class="stocks-empty-icon">📈</span>
+    <div class="stocks-empty-title">No stocks yet</div>
+    <div class="stocks-empty-sub">Start by adding a deposit to your broker account,<br>then record your first buy trade!</div>
+  </div>`;
+}
+
+// ─── Bought tab ───
+function renderBoughtTab() {
+  const trades = filteredTrades().filter(t=>t.type==='buy').sort((a,b)=>b.date.localeCompare(a.date));
+  if (trades.length === 0) return `<div class="stocks-empty"><span class="stocks-empty-icon">🟢</span><div class="stocks-empty-title">No buy trades</div><div class="stocks-empty-sub">Add your first buy trade above.</div></div>`;
+  return trades.map(t => tradeRow(t)).join('');
+}
+
+// ─── Sold tab ───
+function renderSoldTab() {
+  const trades = filteredTrades().filter(t=>t.type==='sell').sort((a,b)=>b.date.localeCompare(a.date));
+  if (trades.length === 0) return `<div class="stocks-empty"><span class="stocks-empty-icon">🔴</span><div class="stocks-empty-title">No sell trades</div><div class="stocks-empty-sub">No stocks sold yet.</div></div>`;
+  return trades.map(t => tradeRow(t)).join('');
+}
+
+function tradeRow(t) {
+  const total  = t.qty * t.price;
+  const dateD  = new Date(t.date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'});
+  return `<div class="trade-row">
+    <span class="trade-type-badge ${t.type==='buy'?'trade-buy':'trade-sell'}">${t.type.toUpperCase()}</span>
+    <div class="trade-info">
+      <div class="trade-ticker">${t.symbol} ${brokerBadge(t.broker)}</div>
+      <div class="trade-meta">${t.qty} × ₹${fmtStock(t.price)} ${t.charges>0?`+ ₹${fmtStock(t.charges)} charges`:''}</div>
+      ${t.note ? `<div style="font-size:9px;color:var(--stock-muted);margin-top:2px;font-style:italic">${t.note}</div>` : ''}
+    </div>
+    <div>
+      <div class="trade-amount" style="color:${t.type==='buy'?'var(--stock-down)':'var(--stock-up)'}">₹${fmtStock(total)}</div>
+      <div class="trade-date">${dateD}</div>
+    </div>
+    <button class="trade-del" onclick="deleteStockTrade('${t.id}')">✕</button>
+  </div>`;
+}
+
+// ─── Deposits tab ───
+function renderStockDepositsTab() {
+  const deps = filteredDeposits().sort((a,b)=>b.date.localeCompare(a.date));
+  if (deps.length === 0) return `<div class="stocks-empty"><span class="stocks-empty-icon">💰</span><div class="stocks-empty-title">No investment deposits</div><div class="stocks-empty-sub">Record money you transferred to your broker account.</div></div>`;
+
+  return deps.map(dep => {
+    const trades = state.stockTrades.filter(t => t.depositId === dep.id);
+    const usedAmt = trades.reduce((a,t) => {
+      if (t.type === 'buy') return a + (t.qty * t.price) + t.charges;
+      return a;
+    }, 0);
+    const pct = dep.amount > 0 ? Math.min(100, (usedAmt/dep.amount)*100) : 0;
+    const dateD = new Date(dep.date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+
+    return `<div class="sdep-card">
+      <div class="sdep-header">
+        <div>
+          <div class="sdep-label">${dep.label || 'Investment Deposit'}</div>
+          <div class="sdep-date">${dateD} · ${brokerBadge(dep.broker)}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="sdep-amount">₹${fmtStock(dep.amount)}</div>
+          <div class="sdep-used">₹${fmtStock(usedAmt)} invested</div>
+          <button onclick="deleteStockDeposit('${dep.id}')" style="background:none;border:none;color:var(--stock-muted);cursor:pointer;font-size:12px;margin-top:4px">✕ remove</button>
+        </div>
+      </div>
+      <div class="sdep-progress"><div class="sdep-progress-fill" style="width:${pct.toFixed(1)}%"></div></div>
+      <div class="sdep-trades">
+        ${trades.length===0 ? `<div style="font-size:11px;color:var(--stock-muted)">No trades linked to this deposit yet.</div>` :
+          trades.map(t => {
+            const d = new Date(t.date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+            return `<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--stock-muted);padding:4px 0;border-bottom:1px solid var(--stock-border);font-family:'JetBrains Mono',monospace">
+              <span><span style="color:${t.type==='buy'?'var(--stock-up)':'var(--stock-down)'}">${t.type.toUpperCase()}</span> ${t.symbol} × ${t.qty}</span>
+              <span>${d} · ₹${fmtStock(t.qty*t.price)}</span>
+            </div>`;
+          }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Stock Detail / Journey ───
+function openStockDetail(symbol) {
+  currentStockSymbol = symbol;
+  ensureStockState();
+  const all = state.stockTrades.filter(t=>t.symbol.toUpperCase()===symbol.toUpperCase())
+                               .sort((a,b)=>a.date.localeCompare(b.date)||a.id-b.id);
+  const portfolio = computePortfolio().find(p=>p.symbol===symbol) || {};
+
+  // Header summary
+  const pnlColor = portfolio.realizedPnL >= 0 ? '#00d09c' : '#ff4757';
+  document.getElementById('sdModalTitle').innerHTML = `<span style="color:var(--stock-accent)">${symbol}</span> Journey`;
+  document.getElementById('sdModalSummary').innerHTML = `
+    <div class="sdm-summary">
+      <div class="sdm-stat"><div class="sdm-stat-val" style="color:#00d09c">${portfolio.currentQty||0}</div><div class="sdm-stat-lbl">Held Qty</div></div>
+      <div class="sdm-stat"><div class="sdm-stat-val" style="color:var(--stock-accent)">₹${fmtStock(portfolio.avgCost||0)}</div><div class="sdm-stat-lbl">Avg Cost</div></div>
+      <div class="sdm-stat"><div class="sdm-stat-val" style="color:${pnlColor}">${portfolio.realizedPnL>=0?'+':''}₹${fmtStock(Math.abs(portfolio.realizedPnL||0))}</div><div class="sdm-stat-lbl">Realized P&L</div></div>
+      <div class="sdm-stat"><div class="sdm-stat-val" style="color:#5cc8fc">₹${fmtStock(portfolio.investedValue||0)}</div><div class="sdm-stat-lbl">Invested</div></div>
+    </div>`;
+
+  // Build journey tree
+  document.getElementById('sdModalBody').innerHTML = buildJourneyTree(all, symbol);
+  document.getElementById('stockDetailOverlay').classList.add('open');
+}
+
+function buildJourneyTree(trades, symbol) {
+  if (trades.length === 0) return `<div style="color:var(--stock-muted);text-align:center;padding:20px">No trades for ${symbol} yet.</div>`;
+
+  let html = `<div class="journey-wrap">`;
+  let runningQty = 0, runningCost = 0, journeyNum = 1;
+
+  // LTP input
+  html += `<div class="stock-ltp-row" style="margin-bottom:14px">
+    <span class="stock-ltp-label">📡 Set LTP for ${symbol}</span>
+    <input class="stock-ltp-input" type="number" placeholder="${stockLTPMap[symbol]||'price'}" id="detailLTPInput" inputmode="decimal"
+      onchange="stockLTPMap['${symbol}']=parseFloat(this.value)||0;openStockDetail('${symbol}')">
+  </div>`;
+
+  trades.forEach((t, i) => {
+    const d = new Date(t.date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const total = t.qty * t.price;
+    const dotClass = t.type === 'buy' ? 'journey-dot-buy' : 'journey-dot-sell';
+    const actionColor = t.type === 'buy' ? 'var(--stock-up)' : 'var(--stock-down)';
+    const dot = t.type === 'buy' ? '▲' : '▼';
+
+    if (t.type === 'buy') {
+      runningCost += total + t.charges;
+      runningQty  += t.qty;
+    } else {
+      // Realized P&L for this sell
+      const avgAtSell = runningQty > 0 ? runningCost / runningQty : 0;
+      const pnl = (t.price - avgAtSell) * t.qty;
+      const pnlColor = pnl >= 0 ? 'var(--stock-up)' : 'var(--stock-down)';
+      const pnlSign  = pnl >= 0 ? '▲ Profit' : '▼ Loss';
+
+      html += `<div class="journey-node">
+        <div class="journey-dot ${dotClass}" style="font-size:7px;color:${actionColor}">${dot}</div>
+        <div class="journey-card">
+          <div class="journey-date">${d}</div>
+          <div class="journey-action" style="color:${actionColor}">🔴 SELL — ${t.qty} shares @ ₹${fmtStock(t.price)}</div>
+          <div class="journey-detail">Total received: ₹${fmtStock(total)}<br>Avg buy cost was: ₹${fmtStock(avgAtSell)}<br>${t.charges>0?`Charges: ₹${fmtStock(t.charges)}<br>`:''}</div>
+          <div class="journey-pnl" style="color:${pnlColor}">${pnlSign}: ${pnl>=0?'+':''}₹${fmtStock(Math.abs(pnl))}</div>
+        </div>
+      </div>`;
+
+      runningCost -= avgAtSell * t.qty;
+      runningQty  -= t.qty;
+
+      if (runningQty < 0) runningQty = 0;
+      if (runningQty === 0) {
+        html += `<div class="journey-node"><div class="journey-dot journey-dot-avg" style="font-size:7px">✓</div>
+          <div class="journey-avg-node">🏁 Journey ${journeyNum} complete · ${t.qty} shares sold</div></div>`;
+        journeyNum++;
+      }
+      return;
+    }
+
+    const newAvg = runningQty > 0 ? runningCost / runningQty : 0;
+    html += `<div class="journey-node">
+      <div class="journey-dot ${dotClass}" style="font-size:7px;color:${actionColor}">${dot}</div>
+      <div class="journey-card">
+        <div class="journey-date">${d} ${brokerBadge(t.broker)}</div>
+        <div class="journey-action" style="color:${actionColor}">🟢 BUY — ${t.qty} shares @ ₹${fmtStock(t.price)}</div>
+        <div class="journey-detail">Total invested: ₹${fmtStock(total)}${t.charges>0?`<br>Charges: ₹${fmtStock(t.charges)}`:''}<br>${t.note?`Note: ${t.note}`:''}</div>
+      </div>
+    </div>`;
+
+    // Show average after each buy if more than 1 buy
+    if (i > 0 && trades.slice(0,i).some(prev=>prev.type==='buy')) {
+      html += `<div class="journey-node"><div class="journey-dot journey-dot-avg" style="font-size:7px">∅</div>
+        <div class="journey-avg-node">📊 Running avg: ₹${fmtStock(newAvg)} · ${runningQty} shares held</div></div>`;
+    }
+  });
+
+  // Current status
+  if (runningQty > 0) {
+    const ltp = stockLTPMap[symbol];
+    const avgNow = runningQty > 0 ? runningCost / runningQty : 0;
+    const ltpPnl = ltp ? ((ltp - avgNow) * runningQty) : null;
+    const ltpColor = ltpPnl === null ? 'var(--stock-muted)' : ltpPnl >= 0 ? 'var(--stock-up)' : 'var(--stock-down)';
+    html += `<div class="journey-node"><div class="journey-dot" style="border-color:var(--stock-accent);background:rgba(255,215,0,0.2);font-size:7px;color:var(--stock-accent)">◉</div>
+      <div class="journey-avg-node" style="border-color:rgba(255,215,0,0.4)">
+        📌 Currently holding ${runningQty} shares · Avg ₹${fmtStock(avgNow)}
+        ${ltp ? `<br><span style="color:${ltpColor}">LTP ₹${fmtStock(ltp)} · Unrealized ${ltpPnl>=0?'+':''}₹${fmtStock(Math.abs(ltpPnl))}</span>` : '<br>Set LTP above for live P&L'}
+      </div></div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function closeStockDetailModal() {
+  document.getElementById('stockDetailOverlay').classList.remove('open');
+}
+
+// ─── Add Trade Modal ───
+function openStockTradeModal(type) {
+  ensureStockState();
+  document.getElementById('stType').value = type || 'buy';
+  document.getElementById('stDate').value = todayStr();
+  document.getElementById('stSymbol').value = '';
+  document.getElementById('stQty').value = '';
+  document.getElementById('stPrice').value = '';
+  document.getElementById('stCharges').value = '0';
+  document.getElementById('stNote').value = '';
+  document.getElementById('stTotalPreview').style.display = 'none';
+
+  // populate deposit link
+  const dsel = document.getElementById('stDepositLink');
+  dsel.innerHTML = `<option value="">— No Link —</option>` +
+    state.stockDeposits.map(d=>`<option value="${d.id}">${d.label||'Deposit'} · ₹${fmtStock(d.amount)} (${d.date})</option>`).join('');
+
+  updateStockModalType();
+  document.getElementById('stockTradeOverlay').classList.add('open');
+}
+
+function openStockTradeModalFor(symbol, type) {
+  openStockTradeModal(type);
+  document.getElementById('stSymbol').value = symbol;
+  closeStockDetailModal();
+}
+
+function updateStockModalType() {
+  const type = document.getElementById('stType').value;
+  const btn  = document.getElementById('stConfirmBtn');
+  btn.style.background = type === 'buy' ? 'var(--stock-up)' : 'var(--stock-down)';
+  btn.textContent = type === 'buy' ? '🟢 Save Buy Trade' : '🔴 Save Sell Trade';
+
+  // live preview
+  const qty   = parseFloat(document.getElementById('stQty').value) || 0;
+  const price = parseFloat(document.getElementById('stPrice').value) || 0;
+  const chrg  = parseFloat(document.getElementById('stCharges').value) || 0;
+  const total = qty * price;
+  const prev  = document.getElementById('stTotalPreview');
+  if (total > 0) {
+    prev.style.display = 'block';
+    prev.innerHTML = `Total ${type==='buy'?'invested':'received'}: <strong style="color:${type==='buy'?'var(--stock-down)':'var(--stock-up)'};font-family:'JetBrains Mono',monospace">₹${fmtStock(total)}</strong>${chrg>0?` + ₹${fmtStock(chrg)} charges`:''}`;
+  }
+}
+
+function closeStockTradeModal() {
+  document.getElementById('stockTradeOverlay').classList.remove('open');
+}
+
+function confirmStockTrade() {
+  const type     = document.getElementById('stType').value;
+  const broker   = document.getElementById('stBroker').value;
+  const symbol   = document.getElementById('stSymbol').value.trim().toUpperCase();
+  const date     = document.getElementById('stDate').value;
+  const qty      = parseFloat(document.getElementById('stQty').value);
+  const price    = parseFloat(document.getElementById('stPrice').value);
+  const charges  = parseFloat(document.getElementById('stCharges').value) || 0;
+  const note     = document.getElementById('stNote').value.trim();
+  const depositId= document.getElementById('stDepositLink').value;
+
+  if (!symbol) { showToast('Enter stock symbol'); return; }
+  if (!date)   { showToast('Pick a date'); return; }
+  if (!qty||qty<=0)   { showToast('Enter valid quantity'); return; }
+  if (!price||price<=0) { showToast('Enter valid price'); return; }
+
+  ensureStockState();
+  state.stockTrades.push({ id:'st_'+Date.now(), type, broker, symbol, date, qty, price, charges, note, depositId });
+  state.stockTrades.sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
+  saveState();
+  closeStockTradeModal();
+  renderStocksPage();
+  showToast(`${type==='buy'?'🟢 Bought':'🔴 Sold'} ${qty} × ${symbol} @ ₹${price}`);
+}
+
+function deleteStockTrade(id) {
+  if (!confirm('Delete this trade?')) return;
+  state.stockTrades = state.stockTrades.filter(t=>t.id!==id);
+  saveState(); renderStocksPage(); showToast('Trade removed');
+}
+
+// ─── Investment Deposit Modal ───
+function openStockDepositModal() {
+  ensureStockState();
+  document.getElementById('sdDate').value = todayStr();
+  document.getElementById('sdAmount').value = '';
+  document.getElementById('sdLabel').value = '';
+  document.getElementById('sdNote').value = '';
+  document.getElementById('stockDepositOverlay').classList.add('open');
+}
+
+function closeStockDepositModal() {
+  document.getElementById('stockDepositOverlay').classList.remove('open');
+}
+
+function confirmStockDeposit() {
+  const broker = document.getElementById('sdBroker').value;
+  const date   = document.getElementById('sdDate').value;
+  const amount = parseFloat(document.getElementById('sdAmount').value);
+  const label  = document.getElementById('sdLabel').value.trim() || 'Investment Deposit';
+  const note   = document.getElementById('sdNote').value.trim();
+  if (!date)          { showToast('Pick a date'); return; }
+  if (!amount||amount<=0) { showToast('Enter valid amount'); return; }
+  ensureStockState();
+  state.stockDeposits.push({ id:'sd_'+Date.now(), broker, date, amount, label, note });
+  state.stockDeposits.sort((a,b)=>a.date.localeCompare(b.date));
+  saveState();
+  closeStockDepositModal();
+  renderStocksPage();
+  showToast(`💰 ₹${fmtStock(amount)} deposited to ${BROKER_NAMES[broker]||broker}`);
+}
+
+function deleteStockDeposit(id) {
+  if (!confirm('Delete this deposit?')) return;
+  state.stockDeposits = state.stockDeposits.filter(d=>d.id!==id);
+  saveState(); renderStocksPage(); showToast('Deposit removed');
+}
+
+function openAddBrokerModal() { showToast('Custom brokers: use the Zerodha/Groww/Upstox options above'); }
+
+// ─── Stock PDF/CSV Statement Import ───
+let spState = { step:1, rawText:'', rows:[], preview:[], broker:'groww' };
+
+function openStockPdfModal() {
+  spState = { step:1, rawText:'', rows:[], preview:[], broker:'groww' };
+  document.getElementById('stockPdfOverlay').classList.add('open');
+  renderSpStep();
+}
+
+function closeStockPdfModal() {
+  document.getElementById('stockPdfOverlay').classList.remove('open');
+}
+
+function setSpStep(n) {
+  spState.step = n;
+  for (let i=1; i<=4; i++) {
+    const el = document.getElementById('spstep'+i);
+    if (el) el.className = 'import-step'+(i===n?' active':i<n?' done':'');
+  }
+  renderSpStep();
+}
+
+function renderSpStep() {
+  const body   = document.getElementById('spBody');
+  const footer = document.getElementById('spFooter');
+  if (!body || !footer) return;
+
+  if (spState.step === 1) {
+    const brokerOpts = Object.entries(BROKER_NAMES).map(([k,v])=>
+      `<option value="${k}" ${k===spState.broker?'selected':''}>${v}</option>`).join('');
+    body.innerHTML = `
+      <div class="map-info-box">📑 Upload your broker's trade statement as a CSV or text file. We'll parse all your buy/sell trades automatically.</div>
+      <div class="past-field" style="margin-bottom:14px">
+        <label>Broker</label>
+        <select onchange="spState.broker=this.value" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-size:13px;outline:none;appearance:none">${brokerOpts}</select>
+      </div>
+      <div class="drop-zone" id="spDropZone">
+        <input type="file" accept=".csv,.txt,.tsv" onchange="handleSpFile(event)">
+        <span class="drop-icon">📑</span>
+        <div class="drop-title">Drop your statement file</div>
+        <div class="drop-sub">Accepts CSV exports from Groww, Zerodha Kite,<br>Upstox, or any broker's trade book</div>
+        <div class="drop-formats"><span class="drop-format-tag">.csv</span><span class="drop-format-tag">.txt</span></div>
+      </div>
+      <div id="spFileChosen"></div>
+      <div class="template-hint" style="margin-top:12px">
+        <span>💡</span><span>In Groww: Portfolio → Statements → Trade Book → Export CSV<br>In Zerodha: Console → Reports → Tradebook → Download</span>
+      </div>`;
+    footer.innerHTML = `
+      <button class="import-btn-secondary" onclick="closeStockPdfModal()">Cancel</button>
+      <button class="import-btn-primary" id="spNextBtn" onclick="spProceedToMap()" disabled>Next →</button>`;
+  }
+
+  else if (spState.step === 2) {
+    const sampleRow = spState.rows[0] || {};
+    const headers = Object.keys(sampleRow);
+    const mkSel = (field, aliases) => {
+      const matched = headers.find(h=>aliases.some(a=>h.toLowerCase().includes(a)));
+      return `<select class="map-select" onchange="spState.mapping_${field}=this.value" id="spmap_${field}">
+        <option value="">— skip —</option>
+        ${headers.map(h=>`<option value="${h}" ${h===matched?'selected':''}>${h}</option>`).join('')}
+      </select>`;
+    };
+    if (!spState.mapping_symbol)   spState.mapping_symbol   = headers.find(h=>['symbol','stock','scrip','instrument','tradingsymbol'].some(a=>h.toLowerCase().includes(a)))||'';
+    if (!spState.mapping_type)     spState.mapping_type     = headers.find(h=>['type','trade type','transaction','buy/sell','side','action'].some(a=>h.toLowerCase().includes(a)))||'';
+    if (!spState.mapping_date)     spState.mapping_date     = headers.find(h=>['date','trade date','order date','time'].some(a=>h.toLowerCase().includes(a)))||'';
+    if (!spState.mapping_qty)      spState.mapping_qty      = headers.find(h=>['qty','quantity','shares','units','filled'].some(a=>h.toLowerCase().includes(a)))||'';
+    if (!spState.mapping_price)    spState.mapping_price    = headers.find(h=>['price','rate','avg price','trade price','ltp'].some(a=>h.toLowerCase().includes(a)))||'';
+
+    body.innerHTML = `
+      <div class="map-info-box">Map your statement columns to our fields. Auto-detected from ${spState.rows.length} rows.</div>
+      <table class="map-table"><thead><tr><th>Field</th><th>Your Column</th><th>Sample</th></tr></thead><tbody>
+        ${[
+          ['symbol','Stock Symbol',['symbol','scrip']],
+          ['type','Buy / Sell',['type','side']],
+          ['date','Trade Date',['date','time']],
+          ['qty','Quantity',['qty','quantity']],
+          ['price','Price',['price','rate']],
+        ].map(([f,lbl])=>`<tr>
+          <td><div class="map-field-name">${lbl}</div></td>
+          <td>${mkSel(f,[])}<div class="map-preview-val">${sampleRow[spState['mapping_'+f]]||'—'}</div></td>
+          <td></td>
+        </tr>`).join('')}
+      </tbody></table>`;
+    footer.innerHTML = `
+      <button class="import-btn-secondary" onclick="setSpStep(1)">← Back</button>
+      <button class="import-btn-primary" onclick="spBuildPreview()">Preview →</button>`;
+  }
+
+  else if (spState.step === 3) {
+    const valid = spState.preview.filter(t=>!t._err);
+    const errs  = spState.preview.filter(t=>t._err);
+    body.innerHTML = `
+      ${errs.length ? `<div class="warn-box">⚠️ ${errs.length} rows skipped (invalid data).</div>` : ''}
+      <div class="success-box">✅ Ready to import <strong>${valid.length}</strong> trades into <strong>${BROKER_NAMES[spState.broker]}</strong>.</div>
+      <div class="preview-table-wrap"><table class="preview-table">
+        <thead><tr><th>Date</th><th>Symbol</th><th>Type</th><th>Qty</th><th>Price</th></tr></thead>
+        <tbody>${valid.slice(0,50).map(t=>`<tr>
+          <td>${t.date}</td>
+          <td style="font-weight:600">${t.symbol}</td>
+          <td style="color:${t.type==='buy'?'var(--stock-up)':'var(--stock-down)'}">${t.type.toUpperCase()}</td>
+          <td style="font-family:'JetBrains Mono',monospace">${t.qty}</td>
+          <td style="font-family:'JetBrains Mono',monospace">₹${fmtStock(t.price)}</td>
+        </tr>`).join('')}
+        ${valid.length>50?`<tr><td colspan="5" style="text-align:center;color:var(--muted);font-size:11px">...and ${valid.length-50} more</td></tr>`:''}
+        </tbody>
+      </table></div>`;
+    footer.innerHTML = `
+      <button class="import-btn-secondary" onclick="setSpStep(2)">← Back</button>
+      <button class="import-btn-primary" onclick="spExecuteImport()" ${valid.length?'':'disabled'}>Import ${valid.length} Trades</button>`;
+  }
+
+  else if (spState.step === 4) {
+    body.innerHTML = `<div class="import-done">
+      <span class="import-done-icon">📈</span>
+      <div class="import-done-title">Trades Imported!</div>
+      <div class="import-done-sub">Successfully imported <strong>${spState.importedCount}</strong> trades into <strong>${BROKER_NAMES[spState.broker]}</strong>.<br>View them in your Portfolio tab.</div>
+    </div>`;
+    footer.innerHTML = `<button class="import-btn-primary" onclick="closeStockPdfModal();renderStocksPage()">View Portfolio →</button>`;
+  }
+}
+
+function handleSpFile(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    spState.rawText = ev.target.result;
+    // parse same way as CSV import
+    const lines = spState.rawText.trim().split(/\r?\n/).filter(l=>l.trim());
+    if (lines.length < 2) { showToast('No data found'); return; }
+    const delimiters = [',',';','\t','|'];
+    let delim=',', maxCols=0;
+    delimiters.forEach(d=>{ const c=parseLine(lines[0],d).length; if(c>maxCols){maxCols=c;delim=d;} });
+    const headers = parseLine(lines[0],delim).map(h=>h.trim().replace(/^"|"$/g,''));
+    const rows=[];
+    for(let i=1;i<lines.length;i++){
+      const vals=parseLine(lines[i],delim);
+      if(vals.every(v=>!v.trim())) continue;
+      const obj={};
+      headers.forEach((h,j)=>{obj[h]=(vals[j]||'').trim().replace(/^"|"$/g,'');});
+      rows.push(obj);
+    }
+    spState.rows = rows;
+    document.getElementById('spFileChosen').innerHTML = `<div class="file-chosen" style="margin-top:10px"><span class="file-chosen-icon">📑</span><div class="file-chosen-info"><div class="file-chosen-name">${f.name}</div><div class="file-chosen-meta">${rows.length} trades · ${headers.length} columns</div></div></div>`;
+    document.getElementById('spNextBtn').disabled = rows.length===0;
+  };
+  reader.readAsText(f,'UTF-8');
+}
+
+function spProceedToMap() {
+  if (!spState.rows.length) { showToast('Please select a file'); return; }
+  setSpStep(2);
+}
+
+function spBuildPreview() {
+  const m = spState;
+  const preview = [];
+  m.rows.forEach((row,idx) => {
+    const symbol = (row[m.mapping_symbol]||'').trim().toUpperCase().replace(/\s+/g,'');
+    const typeRaw = (row[m.mapping_type]||'').toLowerCase();
+    const type = typeRaw.includes('sell')||typeRaw==='s'||typeRaw==='sell' ? 'sell' : 'buy';
+    const dateStr = normalizeDate((row[m.mapping_date]||'').trim());
+    const qty = parseFloat((row[m.mapping_qty]||'').replace(/,/g,''));
+    const price = parseFloat((row[m.mapping_price]||'').replace(/[₹,]/g,''));
+    if (!symbol||!dateStr||isNaN(qty)||qty<=0||isNaN(price)||price<=0) {
+      preview.push({_err:`Row ${idx+2}: invalid data`, _raw:row}); return;
+    }
+    preview.push({ id:'sp_'+Date.now()+idx, type, broker:m.broker, symbol, date:dateStr, qty, price, charges:0, note:'Imported from statement', depositId:'' });
+  });
+  spState.preview = preview;
+  setSpStep(3);
+}
+
+function spExecuteImport() {
+  ensureStockState();
+  const valid = spState.preview.filter(t=>!t._err);
+  valid.forEach((t,i)=>{ t.id='sp_'+Date.now()+i; state.stockTrades.push(t); });
+  state.stockTrades.sort((a,b)=>a.date.localeCompare(b.date));
+  spState.importedCount = valid.length;
+  saveState();
+  setSpStep(4);
+}
+
+// ─── Number formatter for stocks ───
+function fmtStock(n) {
+  if (n === null || n === undefined) return '—';
+  return Number(n).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+
 loadState();
 // Migrate old entries that don't have accountId
 state.entries.forEach(e=>{ if(!e.accountId) e.accountId='acc_1'; });
+ensureStockState();
 // Set chart month to current month by default
 chartMonthFilter = getCurrentMonth();
 logMonthFilter = getCurrentMonth();
