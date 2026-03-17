@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
   --bg: #0f0f1a;
@@ -3304,21 +3305,31 @@ function renderSpStep() {
     const brokerOpts = Object.entries(BROKER_NAMES).map(([k,v])=>
       `<option value="${k}" ${k===spState.broker?'selected':''}>${v}</option>`).join('');
     body.innerHTML = `
-      <div class="map-info-box">📑 Upload your broker's trade statement as a CSV or text file. We'll parse all your buy/sell trades automatically.</div>
+      <div class="map-info-box">📑 Upload your broker's trade statement — CSV, Excel (.xlsx), or text file. We'll parse all your buy/sell trades automatically.</div>
       <div class="past-field" style="margin-bottom:14px">
         <label>Broker</label>
         <select onchange="spState.broker=this.value" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-size:13px;outline:none;appearance:none">${brokerOpts}</select>
       </div>
       <div class="drop-zone" id="spDropZone">
-        <input type="file" accept=".csv,.txt,.tsv" onchange="handleSpFile(event)">
-        <span class="drop-icon">📑</span>
+        <input type="file" accept=".csv,.txt,.tsv,.xlsx,.xls" onchange="handleSpFile(event)">
+        <span class="drop-icon">📊</span>
         <div class="drop-title">Drop your statement file</div>
-        <div class="drop-sub">Accepts CSV exports from Groww, Zerodha Kite,<br>Upstox, or any broker's trade book</div>
-        <div class="drop-formats"><span class="drop-format-tag">.csv</span><span class="drop-format-tag">.txt</span></div>
+        <div class="drop-sub">Accepts CSV <strong>or Excel (.xlsx)</strong> from Groww,<br>Zerodha Kite, Upstox, or any broker's trade book</div>
+        <div class="drop-formats">
+          <span class="drop-format-tag">.xlsx</span>
+          <span class="drop-format-tag">.xls</span>
+          <span class="drop-format-tag">.csv</span>
+          <span class="drop-format-tag">.txt</span>
+        </div>
       </div>
       <div id="spFileChosen"></div>
       <div class="template-hint" style="margin-top:12px">
-        <span>💡</span><span>In Groww: Portfolio → Statements → Trade Book → Export CSV<br>In Zerodha: Console → Reports → Tradebook → Download</span>
+        <span>💡</span>
+        <span>
+          <strong>Groww:</strong> Reports → Transactions → Stocks - Order history → Download Excel<br>
+          <strong>Zerodha:</strong> Console → Reports → Tradebook → Download Excel<br>
+          <strong>Upstox:</strong> Reports → Trade History → Export Excel
+        </span>
       </div>`;
     footer.innerHTML = `
       <button class="import-btn-secondary" onclick="closeStockPdfModal()">Cancel</button>
@@ -3328,31 +3339,34 @@ function renderSpStep() {
   else if (spState.step === 2) {
     const sampleRow = spState.rows[0] || {};
     const headers = Object.keys(sampleRow);
-    const mkSel = (field, aliases) => {
-      const matched = headers.find(h=>aliases.some(a=>h.toLowerCase().includes(a)));
-      return `<select class="map-select" onchange="spState.mapping_${field}=this.value" id="spmap_${field}">
+
+    // helper: build a select for a field, using pre-detected mapping
+    const mkSel = (field) => {
+      const current = spState['mapping_'+field] || '';
+      return `<select class="map-select" onchange="spState.mapping_${field}=this.value;document.getElementById('spv_${field}').textContent=spState.rows[0]&&spState.rows[0][this.value]||'—'" id="spmap_${field}">
         <option value="">— skip —</option>
-        ${headers.map(h=>`<option value="${h}" ${h===matched?'selected':''}>${h}</option>`).join('')}
+        ${headers.map(h=>`<option value="${h}" ${h===current?'selected':''}>${h}</option>`).join('')}
       </select>`;
     };
-    if (!spState.mapping_symbol)   spState.mapping_symbol   = headers.find(h=>['symbol','stock','scrip','instrument','tradingsymbol'].some(a=>h.toLowerCase().includes(a)))||'';
-    if (!spState.mapping_type)     spState.mapping_type     = headers.find(h=>['type','trade type','transaction','buy/sell','side','action'].some(a=>h.toLowerCase().includes(a)))||'';
-    if (!spState.mapping_date)     spState.mapping_date     = headers.find(h=>['date','trade date','order date','time'].some(a=>h.toLowerCase().includes(a)))||'';
-    if (!spState.mapping_qty)      spState.mapping_qty      = headers.find(h=>['qty','quantity','shares','units','filled'].some(a=>h.toLowerCase().includes(a)))||'';
-    if (!spState.mapping_price)    spState.mapping_price    = headers.find(h=>['price','rate','avg price','trade price','ltp'].some(a=>h.toLowerCase().includes(a)))||'';
 
     body.innerHTML = `
-      <div class="map-info-box">Map your statement columns to our fields. Auto-detected from ${spState.rows.length} rows.</div>
-      <table class="map-table"><thead><tr><th>Field</th><th>Your Column</th><th>Sample</th></tr></thead><tbody>
+      <div class="map-info-box">
+        ${spState.isXlsx ? '📊 Excel file loaded.' : '📑 CSV file loaded.'}
+        Map your columns — auto-detected from <strong>${spState.rows.length} rows</strong>.
+      </div>
+      <table class="map-table"><thead><tr><th>Field</th><th>Your Column</th><th>Sample Value</th></tr></thead><tbody>
         ${[
-          ['symbol','Stock Symbol',['symbol','scrip']],
-          ['type','Buy / Sell',['type','side']],
-          ['date','Trade Date',['date','time']],
-          ['qty','Quantity',['qty','quantity']],
-          ['price','Price',['price','rate']],
+          ['symbol','Stock Symbol'],
+          ['type','Buy / Sell'],
+          ['date','Trade Date'],
+          ['qty','Quantity'],
+          ['price','Price per Share'],
         ].map(([f,lbl])=>`<tr>
-          <td><div class="map-field-name">${lbl}</div></td>
-          <td>${mkSel(f,[])}<div class="map-preview-val">${sampleRow[spState['mapping_'+f]]||'—'}</div></td>
+          <td><div class="map-field-name">${lbl}</div><span class="map-field-req">required</span></td>
+          <td>
+            ${mkSel(f)}
+            <div class="map-preview-val" id="spv_${f}">${sampleRow[spState['mapping_'+f]]||'—'}</div>
+          </td>
           <td></td>
         </tr>`).join('')}
       </tbody></table>`;
@@ -3397,29 +3411,117 @@ function renderSpStep() {
 function handleSpFile(e) {
   const f = e.target.files[0];
   if (!f) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    spState.rawText = ev.target.result;
-    // parse same way as CSV import
-    const lines = spState.rawText.trim().split(/\r?\n/).filter(l=>l.trim());
-    if (lines.length < 2) { showToast('No data found'); return; }
-    const delimiters = [',',';','\t','|'];
-    let delim=',', maxCols=0;
-    delimiters.forEach(d=>{ const c=parseLine(lines[0],d).length; if(c>maxCols){maxCols=c;delim=d;} });
-    const headers = parseLine(lines[0],delim).map(h=>h.trim().replace(/^"|"$/g,''));
-    const rows=[];
-    for(let i=1;i<lines.length;i++){
-      const vals=parseLine(lines[i],delim);
-      if(vals.every(v=>!v.trim())) continue;
-      const obj={};
-      headers.forEach((h,j)=>{obj[h]=(vals[j]||'').trim().replace(/^"|"$/g,'');});
-      rows.push(obj);
-    }
-    spState.rows = rows;
-    document.getElementById('spFileChosen').innerHTML = `<div class="file-chosen" style="margin-top:10px"><span class="file-chosen-icon">📑</span><div class="file-chosen-info"><div class="file-chosen-name">${f.name}</div><div class="file-chosen-meta">${rows.length} trades · ${headers.length} columns</div></div></div>`;
-    document.getElementById('spNextBtn').disabled = rows.length===0;
-  };
-  reader.readAsText(f,'UTF-8');
+
+  const ext = f.name.split('.').pop().toLowerCase();
+  const isXlsx = ext === 'xlsx' || ext === 'xls';
+
+  if (isXlsx) {
+    // ── XLSX path via SheetJS ──
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = new Uint8Array(ev.target.result);
+        const wb   = XLSX.read(data, { type: 'array', cellDates: true });
+
+        // Use first sheet, but try to find the most data-rich sheet
+        let sheetName = wb.SheetNames[0];
+        let maxRows = 0;
+        wb.SheetNames.forEach(sn => {
+          const ws = wb.Sheets[sn];
+          const ref = ws['!ref'];
+          if (ref) {
+            const range = XLSX.utils.decode_range(ref);
+            const rows  = range.e.r - range.s.r;
+            if (rows > maxRows) { maxRows = rows; sheetName = sn; }
+          }
+        });
+
+        const ws   = wb.Sheets[sheetName];
+        const json = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false });
+
+        if (!json || json.length === 0) { showToast('No data found in Excel file'); return; }
+
+        // Normalise all keys to lowercase trimmed strings
+        const rows = json.map(row => {
+          const norm = {};
+          Object.entries(row).forEach(([k, v]) => {
+            norm[String(k).trim().toLowerCase()] = String(v).trim();
+          });
+          return norm;
+        }).filter(row => Object.values(row).some(v => v !== ''));
+
+        spState.rows = rows;
+        spState.isXlsx = true;
+
+        const sheetInfo = wb.SheetNames.length > 1
+          ? ` (sheet: "${sheetName}", ${wb.SheetNames.length} sheets total)` : '';
+
+        document.getElementById('spFileChosen').innerHTML = `
+          <div class="file-chosen" style="margin-top:10px">
+            <span class="file-chosen-icon">📊</span>
+            <div class="file-chosen-info">
+              <div class="file-chosen-name">${f.name}</div>
+              <div class="file-chosen-meta">${rows.length} trades · ${Object.keys(rows[0]||{}).length} columns${sheetInfo}</div>
+              <div class="file-chosen-meta" style="color:var(--green);margin-top:2px">✅ Excel parsed successfully</div>
+            </div>
+          </div>`;
+        document.getElementById('spNextBtn').disabled = rows.length === 0;
+
+        // Pre-populate mapping keys from normalised headers
+        const headers = Object.keys(rows[0] || {});
+        spState.mapping_symbol = headers.find(h=>['symbol','stock','scrip','instrument','tradingsymbol','script name','stock name'].some(a=>h.includes(a)))||'';
+        spState.mapping_type   = headers.find(h=>['type','trade type','transaction','buy/sell','side','action','order type','b/s'].some(a=>h.includes(a)))||'';
+        spState.mapping_date   = headers.find(h=>['date','trade date','order date','time','execution time'].some(a=>h.includes(a)))||'';
+        spState.mapping_qty    = headers.find(h=>['qty','quantity','shares','units','filled qty','executed qty'].some(a=>h.includes(a)))||'';
+        spState.mapping_price  = headers.find(h=>['price','rate','avg price','trade price','execution price','avg. price'].some(a=>h.includes(a)))||'';
+
+      } catch (err) {
+        console.error('XLSX parse error:', err);
+        showToast('Could not read Excel file — try saving as CSV');
+      }
+    };
+    reader.readAsArrayBuffer(f);
+
+  } else {
+    // ── CSV / TXT path ──
+    const reader = new FileReader();
+    reader.onload = ev => {
+      spState.rawText  = ev.target.result;
+      spState.isXlsx   = false;
+      const lines = spState.rawText.trim().split(/\r?\n/).filter(l=>l.trim());
+      if (lines.length < 2) { showToast('No data found in file'); return; }
+      const delimiters = [',',';','\t','|'];
+      let delim=',', maxCols=0;
+      delimiters.forEach(d=>{ const c=parseLine(lines[0],d).length; if(c>maxCols){maxCols=c;delim=d;} });
+      const headers = parseLine(lines[0],delim).map(h=>h.trim().toLowerCase().replace(/^"|"$/g,''));
+      const rows=[];
+      for(let i=1;i<lines.length;i++){
+        const vals=parseLine(lines[i],delim);
+        if(vals.every(v=>!v.trim())) continue;
+        const obj={};
+        headers.forEach((h,j)=>{obj[h]=(vals[j]||'').trim().replace(/^"|"$/g,'');});
+        rows.push(obj);
+      }
+      spState.rows = rows;
+      document.getElementById('spFileChosen').innerHTML = `
+        <div class="file-chosen" style="margin-top:10px">
+          <span class="file-chosen-icon">📑</span>
+          <div class="file-chosen-info">
+            <div class="file-chosen-name">${f.name}</div>
+            <div class="file-chosen-meta">${rows.length} trades · ${headers.length} columns</div>
+            <div class="file-chosen-meta" style="color:var(--green);margin-top:2px">✅ CSV parsed successfully</div>
+          </div>
+        </div>`;
+      document.getElementById('spNextBtn').disabled = rows.length===0;
+
+      spState.mapping_symbol = headers.find(h=>['symbol','stock','scrip','instrument','tradingsymbol'].some(a=>h.includes(a)))||'';
+      spState.mapping_type   = headers.find(h=>['type','trade type','transaction','buy/sell','side','action'].some(a=>h.includes(a)))||'';
+      spState.mapping_date   = headers.find(h=>['date','trade date','order date','time'].some(a=>h.includes(a)))||'';
+      spState.mapping_qty    = headers.find(h=>['qty','quantity','shares','units','filled'].some(a=>h.includes(a)))||'';
+      spState.mapping_price  = headers.find(h=>['price','rate','avg price','trade price','ltp'].some(a=>h.includes(a)))||'';
+    };
+    reader.readAsText(f,'UTF-8');
+  }
 }
 
 function spProceedToMap() {
