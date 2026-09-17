@@ -45,12 +45,28 @@ body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text
 #app { max-width: 480px; margin: 0 auto; padding-bottom: 90px; }
 
 /* ── Header ── */
-.header { padding: 16px 20px 0; position: sticky; top: 0; z-index: 100; background: linear-gradient(to bottom, var(--bg) 80%, transparent); }
+.header { padding: 16px 20px 0; position: sticky; top: 0; z-index: 100; background: linear-gradient(to bottom, var(--bg) 80%, transparent); transform: translateZ(0); }
 .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
 .header-date { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
 .header-title { font-size: 20px; font-weight: 700; }
 .header-title span { color: var(--accent); }
 .header-budget { margin-top: 12px; background: var(--card); border-radius: var(--radius); padding: 14px 16px; border: 1px solid var(--border); }
+.header-budget-wrap {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+  contain: layout style paint;
+  will-change: grid-template-rows;
+}
+.header-budget-wrap.minimized { grid-template-rows: 0fr; }
+.header-budget-inner {
+  min-height: 0;
+  overflow: hidden;
+  transition: opacity 0.18s ease;
+  will-change: opacity;
+  transform: translateZ(0);
+}
+.header-budget-wrap.minimized .header-budget-inner { opacity: 0; transition-duration: 0.12s; }
 .budget-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .budget-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display:flex; align-items:center; gap:6px; }
 .budget-total { font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--accent); }
@@ -67,12 +83,6 @@ body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text
 .acc-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .acc-chip .acc-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .acc-chip .acc-bal { font-size: 10px; font-family: 'JetBrains Mono', monospace; opacity: 0.8; }
-
-/* ── Nav Tabs ── */
-.nav-tabs { display: flex; gap: 6px; padding: 10px 0 0; overflow-x: auto; scrollbar-width: none; }
-.nav-tabs::-webkit-scrollbar { display: none; }
-.nav-tab { flex-shrink: 0; padding: 7px 16px; border-radius: 99px; font-size: 12px; font-weight: 500; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s; }
-.nav-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
 /* ── Section ── */
 .section { padding: 14px 20px 0; }
@@ -226,6 +236,11 @@ canvas { width: 100% !important; }
 /* ── FAB ── */
 .fab { position: fixed; bottom: 100px; right: 20px; width: 50px; height: 50px; background: var(--accent2); border-radius: 50%; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 4px 20px rgba(252,92,125,0.4); display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 140; }
 .fab:active { transform: scale(0.92); }
+.photo-preview-box { margin-top: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.photo-thumb-wrap { position: relative; display: inline-block; }
+.photo-thumb { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.photo-remove-btn { position: absolute; top: -6px; right: -6px; background: #e11d48; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.log-photo-btn { font-size: 11px; padding: 2px 8px; background: rgba(79,70,229,0.1); border: 1px solid rgba(79,70,229,0.2); border-radius: 6px; color: var(--accent); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; }
 
 /* ── Past Modal ── */
 .past-modal { background: var(--card); border-radius: 24px 24px 0 0; padding: 24px 24px 44px; width: 100%; max-width: 480px; transform: translateY(40px); transition: transform 0.25s cubic-bezier(.4,0,.2,1); border-top: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
@@ -501,8 +516,6 @@ body { background:
 .header { background: linear-gradient(to bottom, var(--bg) 78%, rgba(243,245,251,0)); }
 
 /* tap targets */
-.nav-tab { padding: 11px 18px; font-size: 13.5px; font-weight: 600; background: var(--surface); }
-.nav-tab.active { box-shadow: 0 6px 16px -8px var(--accent); }
 .acc-chip { padding: 10px 16px; font-size: 13px; background: var(--surface); }
 .quick-btn { padding: 18px 10px; border-radius: 18px; }
 .quick-btn .q-icon { font-size: 27px; }
@@ -532,42 +545,88 @@ body { background:
    FRIENDS / SPLIT PAGE
 ═══════════════════════════════════════════════════ */
 .fr-page { padding: 16px 20px 0; }
-.fr-hero { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #db2777 100%);
-  border-radius: 20px; padding: 18px; color: #fff; box-shadow: 0 18px 34px -20px #4f46e5; }
-.fr-hero-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 1.4px; opacity: 0.85; }
-.fr-code { font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 700; letter-spacing: 3px; margin-top: 6px; }
-.fr-hero-sub { font-size: 12px; opacity: 0.88; margin-top: 4px; }
-.fr-hero-btns { display: flex; gap: 8px; margin-top: 14px; }
-.fr-hero-btn { flex: 1; padding: 13px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.35);
-  background: rgba(255,255,255,0.16); color: #fff; font-family: 'Sora', sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer; }
-.fr-hero-btn:active { transform: scale(0.97); }
-.fr-hero-btn.solid { background: #fff; color: #4338ca; border-color: #fff; }
+.fr-header-card {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #db2777 100%);
+  border-radius: 20px; padding: 18px 20px; color: #fff;
+  box-shadow: 0 14px 28px -12px rgba(79,70,229,0.5);
+}
+.fr-hc-top { display: flex; justify-content: space-between; align-items: center; }
+.fr-hc-title { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; }
+.fr-hc-sub { font-size: 12px; opacity: 0.88; margin-top: 4px; }
+.fr-add-hero-btn {
+  padding: 10px 16px; border-radius: 12px; background: #ffffff; color: #4338ca;
+  font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; border: none;
+  cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); white-space: nowrap;
+  transition: transform 0.15s;
+}
+.fr-add-hero-btn:active { transform: scale(0.96); }
+
+/* Quick Friend Photo Rail */
+.fr-quick-rail-wrap { margin-top: 16px; }
+.fr-quick-rail {
+  display: flex; gap: 14px; overflow-x: auto; scrollbar-width: none;
+  padding: 6px 2px 10px;
+}
+.fr-quick-rail::-webkit-scrollbar { display: none; }
+.fr-rail-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  cursor: pointer; flex-shrink: 0; width: 68px; text-align: center;
+}
+.fr-rail-avatar {
+  width: 58px; height: 58px; border-radius: 50%; border: 2.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+  font-weight: 700; color: #fff; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); position: relative; background: var(--surface);
+}
+.fr-rail-item:active .fr-rail-avatar { transform: scale(0.92); border-color: var(--accent); }
+.fr-rail-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.fr-rail-name {
+  font-size: 11.5px; font-weight: 600; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 68px;
+}
+.fr-rail-bal {
+  font-size: 9.5px; font-family: 'JetBrains Mono', monospace; font-weight: 700;
+  padding: 1px 6px; border-radius: 99px;
+}
+.fr-rail-bal.pos { color: var(--green); background: var(--green-soft); }
+.fr-rail-bal.neg { color: var(--accent2); background: var(--accent2-soft); }
+.fr-rail-bal.zero { color: var(--muted); background: var(--surface); }
+.fr-rail-add-btn {
+  width: 58px; height: 58px; border-radius: 50%; border: 2px dashed var(--accent);
+  background: rgba(79,70,229,0.06); color: var(--accent); display: flex;
+  align-items: center; justify-content: center; font-size: 22px; cursor: pointer;
+  transition: all 0.2s;
+}
+.fr-rail-add-btn:active { transform: scale(0.92); }
 
 .fr-balance-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
 .fr-bal-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; box-shadow: var(--shadow); }
 .fr-bal-val { font-family: 'JetBrains Mono', monospace; font-size: 21px; font-weight: 700; }
 .fr-bal-lbl { font-size: 10.5px; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.8px; }
 
-.fr-big-btn { width: 100%; margin-top: 14px; padding: 20px; border-radius: 18px; border: none;
-  background: var(--accent); color: #fff; font-family: 'Sora', sans-serif; font-size: 17px; font-weight: 700;
-  cursor: pointer; box-shadow: 0 14px 28px -14px var(--accent); }
+.fr-big-btn { width: 100%; margin-top: 14px; padding: 18px; border-radius: 18px; border: none;
+  background: var(--accent); color: #fff; font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700;
+  cursor: pointer; box-shadow: 0 14px 28px -14px var(--accent); transition: all 0.2s; }
 .fr-big-btn:active { transform: scale(0.98); background: #4338ca; }
 
 .fr-friend-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px;
   padding: 14px 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 13px; box-shadow: var(--shadow); }
-.fr-avatar { width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0; display: flex; align-items: center;
-  justify-content: center; font-size: 18px; font-weight: 700; color: #fff; font-family: 'Sora', sans-serif; }
+.fr-avatar { width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center;
+  justify-content: center; font-size: 19px; font-weight: 700; color: #fff; font-family: 'Sora', sans-serif;
+  overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative; border: 2px solid var(--border); }
+.fr-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .fr-f-info { flex: 1; min-width: 0; }
 .fr-f-name { font-size: 15px; font-weight: 600; }
-.fr-f-code { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+.fr-f-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .fr-f-amt { text-align: right; flex-shrink: 0; }
 .fr-f-val { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; }
 .fr-f-tag { font-size: 10px; color: var(--muted); margin-top: 2px; }
-.fr-f-actions { display: flex; gap: 6px; margin-top: 10px; }
-.fr-mini-btn { padding: 9px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface);
-  color: var(--text); font-family: 'Sora', sans-serif; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.fr-f-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.fr-mini-btn { padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface);
+  color: var(--text); font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; }
 .fr-mini-btn.pos { border-color: var(--green); color: var(--green); background: var(--green-soft); }
 .fr-mini-btn.dan { border-color: var(--accent2); color: var(--accent2); background: var(--accent2-soft); }
+.fr-mini-btn.act { border-color: var(--accent); color: var(--accent); background: rgba(79,70,229,0.08); }
 
 .fr-split-item { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 13px 14px;
   margin-bottom: 8px; box-shadow: var(--shadow); }
@@ -580,6 +639,54 @@ body { background:
   background: var(--accent2-soft); color: var(--accent2); border: 1px solid rgba(225,29,72,0.2); }
 .fr-share-chip.settled { background: var(--green-soft); color: var(--green); border-color: rgba(5,150,105,0.25); text-decoration: line-through; }
 .fr-share-chip.owe { background: #fff4e6; color: #b45309; border-color: rgba(180,83,9,0.22); }
+
+/* Friend Avatar Picker in Modal */
+.fr-photo-upload-container {
+  display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 10px 0 16px;
+}
+.fr-avatar-preview {
+  width: 82px; height: 82px; border-radius: 50%; border: 3px solid var(--accent);
+  overflow: hidden; display: flex; align-items: center; justify-content: center;
+  font-size: 32px; color: #fff; background: #4f46e5; box-shadow: 0 6px 18px rgba(79,70,229,0.25);
+  cursor: pointer; position: relative;
+}
+.fr-avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+.fr-photo-btn {
+  padding: 8px 14px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--accent); font-size: 12.5px; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+}
+.fr-color-palette { display: flex; gap: 8px; justify-content: center; margin-top: 6px; }
+.fr-color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s; }
+.fr-color-dot.sel { border-color: #fff; box-shadow: 0 0 0 2px var(--accent); transform: scale(1.18); }
+
+/* Friend Pick Pill in Split with Photo */
+.fr-pick-avatar-btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px 6px 6px;
+  border-radius: 99px; border: 1.5px solid var(--border); background: var(--surface);
+  font-family: 'Sora', sans-serif; font-size: 13.5px; font-weight: 600; color: var(--text);
+  cursor: pointer; transition: all 0.15s;
+}
+.fr-pick-avatar-btn.sel {
+  border-color: var(--accent); background: rgba(79,70,229,0.08); color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(79,70,229,0.2);
+}
+.fr-pick-avatar-btn .p-img {
+  width: 30px; height: 30px; border-radius: 50%; object-fit: cover; display: flex;
+  align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px;
+  overflow: hidden;
+}
+.fr-pick-avatar-btn .p-img img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Quick Expense Modal Radio Modes */
+.fq-radio-row {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--surface);
+  border: 1.5px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.15s;
+}
+.fq-radio-row input[type="radio"] { accent-color: var(--accent); width: 18px; height: 18px; }
+.fq-radio-txt { display: flex; flex-direction: column; font-size: 13px; }
+.fq-radio-txt b { color: var(--text); font-size: 13.5px; }
+.fq-radio-txt span { color: var(--muted); font-size: 11px; margin-top: 1px; }
 
 /* Split modal bits */
 .fr-modal { background: var(--card); border-radius: 26px 26px 0 0; padding: 20px 20px 34px; width: 100%;
@@ -598,10 +705,6 @@ body { background:
 .fr-input.text { font-family: 'Sora', sans-serif; font-size: 15px; }
 .fr-input:focus { border-color: var(--accent); }
 .fr-pick-grid { display: flex; gap: 8px; flex-wrap: wrap; }
-.fr-pick { padding: 13px 17px; border-radius: 13px; border: 1.5px solid var(--border); background: var(--surface);
-  font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; }
-.fr-pick.sel { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
-.fr-pick:active { transform: scale(0.97); }
 .fr-mode-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .fr-mode { padding: 15px 8px; border-radius: 14px; border: 1.5px solid var(--border); background: var(--surface);
   font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; }
@@ -620,12 +723,6 @@ body { background:
 .fr-empty { text-align: center; padding: 28px 16px; color: var(--muted); font-size: 13.5px;
   background: var(--card); border: 1px dashed var(--border); border-radius: 16px; }
 .fr-empty .ic { font-size: 34px; display: block; margin-bottom: 8px; }
-.fr-sync-pill { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 99px;
-  font-size: 11.5px; font-weight: 600; margin-top: 12px; }
-.fr-sync-pill.on { background: var(--green-soft); color: var(--green); }
-.fr-sync-pill.off { background: #fff4e6; color: #b45309; }
-.fr-warn { background: #fff8ec; border: 1px solid #f5d9a8; border-radius: 12px; padding: 12px 14px;
-  font-size: 12px; color: #92400e; line-height: 1.55; margin-top: 12px; }
 
 
 /* iPhone standalone safe areas */
@@ -655,36 +752,30 @@ body { background:
   <!-- Account Switcher -->
   <div class="account-bar" id="accountBar"></div>
 
-  <!-- Budget Bar -->
-  <div class="header-budget">
-    <div class="budget-row">
-      <span class="budget-label" id="budgetMonthLabel">Month Total <button class="budget-edit-btn" onclick="openBudgetModal()">✏️ Edit</button></span>
-      <span class="budget-total" id="monthTotal">₹0</span>
-    </div>
-    <div id="currentMonthName" style="font-size:10px;color:var(--muted);text-align:right;margin-top:-6px;margin-bottom:6px;font-family:'JetBrains Mono',monospace"></div>
-    <div class="progress-bar"><div class="progress-fill" id="budgetBar" style="width:0%"></div></div>
-    <div class="budget-sub">
-      <span id="spentLabel">spent ₹0</span>
-      <span id="budgetLabel">budget ₹5,000</span>
-    </div>
-    <!-- Balance row with eye toggle -->
-    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Account Balance</span>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span id="balanceDisplay" style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--green)">••••••</span>
-        <button id="balanceEyeBtn" onclick="toggleBalance()" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:14px;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">👁</button>
+  <!-- Budget Bar (smoothly collapses on scroll) -->
+  <div class="header-budget-wrap" id="headerBudgetWrap">
+    <div class="header-budget-inner">
+      <div class="header-budget">
+        <div class="budget-row">
+          <span class="budget-label" id="budgetMonthLabel">Month Total <button class="budget-edit-btn" onclick="openBudgetModal()">✏️ Edit</button></span>
+          <span class="budget-total" id="monthTotal">₹0</span>
+        </div>
+        <div id="currentMonthName" style="font-size:10px;color:var(--muted);text-align:right;margin-top:-6px;margin-bottom:6px;font-family:'JetBrains Mono',monospace"></div>
+        <div class="progress-bar"><div class="progress-fill" id="budgetBar" style="width:0%"></div></div>
+        <div class="budget-sub">
+          <span id="spentLabel">spent ₹0</span>
+          <span id="budgetLabel">budget ₹5,000</span>
+        </div>
+        <!-- Balance row with eye toggle -->
+        <div style="margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Account Balance</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="balanceDisplay" style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--green)">••••••</span>
+            <button id="balanceEyeBtn" onclick="toggleBalance()" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:14px;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">👁</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('home')">⚡ Quick</button>
-    <button class="nav-tab" onclick="showPage('deposits')">💰 Deposits</button>
-    <button class="nav-tab" onclick="showPage('log')">📋 Log</button>
-    <button class="nav-tab" onclick="showPage('charts')">📊 Charts</button>
-    <button class="nav-tab" onclick="showPage('stocks')">📈 Stocks</button>
-    <button class="nav-tab" onclick="showPage('friends')">👥 Friends</button>
-    <button class="nav-tab" onclick="showPage('settings')">⚙️ Settings</button>
   </div>
 </div>
 
@@ -695,7 +786,6 @@ body { background:
   <div class="section">
     <div class="section-header">
       <div class="section-label">Quick Tap ⚡</div>
-      <div id="activeDepositBadge" style="font-size:10px;color:var(--green);font-family:'JetBrains Mono',monospace"></div>
     </div>
     <div class="quick-grid" id="quickGrid"></div>
   </div>
@@ -704,24 +794,6 @@ body { background:
     <div class="section-label">Today's Log</div>
     <div class="log-list" id="todayLog"></div>
     <button class="add-quick-btn" style="margin-top:10px" onclick="openPastModal()">📅 Add Past Expense</button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════════ -->
-<!-- PAGE: DEPOSITS -->
-<!-- ══════════════════════════════════════════════ -->
-<div class="page" id="page-deposits">
-  <div class="section">
-    <div class="section-header" style="margin-top:4px">
-      <div class="section-label">Deposit Periods</div>
-      <button class="section-action" onclick="openDepositModal()">+ Add Deposit</button>
-    </div>
-    <div id="depositsList"></div>
-
-    <div style="margin-top:16px">
-      <div class="section-label">Selected Period Breakdown</div>
-      <div id="depositDetail"></div>
-    </div>
   </div>
 </div>
 
@@ -770,24 +842,10 @@ body { background:
       <div id="catBarChart"></div>
     </div>
 
-    <div class="chart-card">
+    <div class="chart-card" style="padding-bottom:20px">
       <div class="chart-title">Daily Spending</div>
-      <canvas id="dailyChart" height="140"></canvas>
-    </div>
-
-    <div class="chart-card">
-      <div class="chart-title">Category Donut</div>
-      <canvas id="donutChart" height="200"></canvas>
-    </div>
-
-    <div class="chart-card">
-      <div class="chart-title">Food Breakdown</div>
-      <div id="foodBarChart"></div>
-    </div>
-
-    <div class="chart-card">
-      <div class="chart-title">Weekly Trend</div>
-      <canvas id="weeklyChart" height="140"></canvas>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Tap any day to inspect daily total</div>
+      <canvas id="dailyChart" height="260" style="width:100%;height:260px;touch-action:manipulation"></canvas>
     </div>
 
   </div>
@@ -836,60 +894,25 @@ body { background:
 </div>
 
 <!-- ══════════════════════════════════════════════ -->
-<!-- PAGE: STOCKS -->
-<!-- ══════════════════════════════════════════════ -->
-<div class="page" id="page-stocks">
-  <div class="stocks-page">
-
-    <!-- Broker Tabs -->
-    <div class="broker-bar">
-      <button class="broker-chip active" id="bchip_all" onclick="setActiveBroker('all',this)">All Brokers</button>
-      <button class="broker-chip" id="bchip_groww" onclick="setActiveBroker('groww',this)">
-        <span class="broker-dot" style="background:#00d09c"></span>Groww
-      </button>
-      <button class="broker-chip" id="bchip_zerodha" onclick="setActiveBroker('zerodha',this)">
-        <span class="broker-dot" style="background:#387ed1"></span>Zerodha
-      </button>
-      <button class="broker-chip" id="bchip_upstox" onclick="setActiveBroker('upstox',this)">
-        <span class="broker-dot" style="background:#6f57e9"></span>Upstox
-      </button>
-      <button class="broker-chip" onclick="openAddBrokerModal()">+ Broker</button>
-    </div>
-
-    <!-- Stock Summary Cards -->
-    <div class="stock-summary-row" id="stockSummaryRow"></div>
-
-    <!-- Stock Sub Tabs -->
-    <div class="stock-subtabs">
-      <button class="stock-subtab active" id="sst_portfolio" onclick="setStockSubtab('portfolio',this)">📊 Portfolio</button>
-      <button class="stock-subtab" id="sst_bought" onclick="setStockSubtab('bought',this)">🟢 Bought</button>
-      <button class="stock-subtab" id="sst_sold" onclick="setStockSubtab('sold',this)">🔴 Sold</button>
-      <button class="stock-subtab" id="sst_deposits" onclick="setStockSubtab('sdeposits',this)">💰 Deposits</button>
-    </div>
-
-    <!-- Stock Content -->
-    <div id="stockContent"></div>
-
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════════ -->
 <!-- PAGE: FRIENDS -->
 <!-- ══════════════════════════════════════════════ -->
 <div class="page" id="page-friends">
   <div class="fr-page">
-    <div class="fr-hero">
-      <div class="fr-hero-lbl">My Connect Code</div>
-      <div class="fr-code" id="frMyCode">------</div>
-      <div class="fr-hero-sub" id="frMyName">Share this code so friends can connect with you</div>
-      <div class="fr-hero-btns">
-        <button class="fr-hero-btn" onclick="frShareCode()">📤 Share</button>
-        <button class="fr-hero-btn" onclick="frCopyCode()">📋 Copy</button>
-        <button class="fr-hero-btn solid" onclick="frOpenAddFriend()">➕ Add Friend</button>
+    <div class="fr-header-card">
+      <div class="fr-hc-top">
+        <div>
+          <div class="fr-hc-title">👥 Friends & Splits</div>
+          <div class="fr-hc-sub">Tap photo to add expense or split</div>
+        </div>
+        <button class="fr-add-hero-btn" onclick="frOpenAddFriend()">➕ Add Friend</button>
       </div>
     </div>
 
-    <div id="frSyncStatus"></div>
+    <!-- Quick Friend Photo Rail -->
+    <div class="fr-quick-rail-wrap">
+      <div class="section-label" style="margin:12px 0 8px">Tap Photo to Add Expense</div>
+      <div class="fr-quick-rail" id="frQuickRail"></div>
+    </div>
 
     <div class="fr-balance-row">
       <div class="fr-bal-card">
@@ -904,7 +927,7 @@ body { background:
 
     <button class="fr-big-btn" onclick="frOpenSplit()">➗ Split an Expense</button>
 
-    <div class="section-label" style="margin-top:22px">Friends</div>
+    <div class="section-label" style="margin-top:22px">All Friends</div>
     <div id="frFriendList"></div>
 
     <div class="section-label" style="margin-top:22px">Recent Splits</div>
@@ -919,10 +942,8 @@ body { background:
 <!-- ── BOTTOM NAV ── -->
 <div class="bottom-nav">
   <button class="bn-item active" onclick="showPage('home')" id="bnHome"><span class="bn-icon">⚡</span><span class="bn-label">Quick</span></button>
-  <button class="bn-item" onclick="showPage('deposits')" id="bnDeposits"><span class="bn-icon">💰</span><span class="bn-label">Deposits</span></button>
   <button class="bn-item" onclick="showPage('log')" id="bnLog"><span class="bn-icon">📋</span><span class="bn-label">Log</span></button>
   <button class="bn-item" onclick="showPage('charts')" id="bnCharts"><span class="bn-icon">📊</span><span class="bn-label">Charts</span></button>
-  <button class="bn-item" onclick="showPage('stocks')" id="bnStocks"><span class="bn-icon">📈</span><span class="bn-label">Stocks</span></button>
   <button class="bn-item" onclick="showPage('friends')" id="bnFriends"><span class="bn-icon">👥</span><span class="bn-label">Friends</span></button>
   <button class="bn-item" onclick="showPage('settings')" id="bnSettings"><span class="bn-icon">⚙️</span><span class="bn-label">Settings</span></button>
 </div>
@@ -966,46 +987,96 @@ body { background:
   </div>
 </div>
 
-<!-- ── ADD FRIEND MODAL ── -->
+<!-- ── ADD FRIEND MODAL (Name + Gallery Photo) ── -->
 <div class="modal-overlay" id="frAddOverlay" onclick="if(event.target===this)frCloseAddFriend()">
   <div class="fr-modal">
     <div class="modal-handle"></div>
-    <div class="modal-title" style="font-size:19px">➕ Connect with a Friend</div>
-    <div class="modal-sub">Ask them to open the app and share their 6-character code.</div>
+    <div class="modal-title" style="font-size:20px">➕ Add Friend</div>
+    <div class="modal-sub">Set a name and choose a photo from your gallery.</div>
 
-    <div class="fr-label">Friend's connect code</div>
-    <input class="fr-input" type="text" id="frAddCode" placeholder="e.g. 7QK2MD" maxlength="6"
-           style="text-transform:uppercase;letter-spacing:4px;text-align:center;font-size:22px">
+    <!-- Friend Photo Picker -->
+    <div class="fr-photo-upload-container">
+      <div class="fr-avatar-preview" id="frAvatarPreview" onclick="document.getElementById('frPhotoInput').click()">
+        <span id="frAvatarPreviewText">👤</span>
+      </div>
+      <input type="file" id="frPhotoInput" accept="image/*" style="display:none" onchange="frHandlePhotoSelected(event)">
+      <button type="button" class="fr-photo-btn" onclick="document.getElementById('frPhotoInput').click()">
+        📷 Choose Photo from Gallery
+      </button>
+      <div style="font-size:11px;color:var(--muted)">Photo stays saved with your friend</div>
+    </div>
 
-    <div class="fr-label">Name (what you call them)</div>
-    <input class="fr-input text" type="text" id="frAddName" placeholder="e.g. Ria">
+    <div class="fr-label">Friend's Name</div>
+    <input class="fr-input text" type="text" id="frAddName" placeholder="e.g. Rahul, Alex, Sarah" autofocus>
 
-    <button class="confirm-btn" onclick="frAddFriend()">✓ Connect</button>
+    <div class="fr-label">Or choose avatar color</div>
+    <div class="fr-color-palette" id="frColorPalette"></div>
+
+    <button class="confirm-btn" style="margin-top:18px" onclick="frSaveFriend()">✓ Add Friend</button>
     <button class="cancel-btn" onclick="frCloseAddFriend()">Cancel</button>
   </div>
 </div>
 
-<!-- ── SYNC SETUP MODAL ── -->
-<div class="modal-overlay" id="frSyncOverlay" onclick="if(event.target===this)frCloseSync()">
+<!-- ── QUICK FRIEND EXPENSE MODAL (1-Tap on Photo) ── -->
+<div class="modal-overlay" id="frQuickExpenseOverlay" onclick="if(event.target===this)frCloseQuickExpense()">
   <div class="fr-modal">
     <div class="modal-handle"></div>
-    <div class="modal-title" style="font-size:19px">🔗 Friend Sync Setup</div>
-    <div class="modal-sub">Paste your Firebase Realtime Database URL to sync splits between phones.</div>
-
-    <div class="fr-label">Database URL</div>
-    <input class="fr-input text" type="text" id="frSyncURL" placeholder="https://your-app-default-rtdb.firebaseio.com">
-
-    <div class="fr-label">Your display name</div>
-    <input class="fr-input text" type="text" id="frMyNameInput" placeholder="e.g. Chinmay">
-
-    <div class="fr-warn">
-      <b>Security note:</b> this setup uses open database rules so any device holding the URL can read and write
-      the shared split data. Use a database created only for this app, keep the URL private, and never store
-      anything sensitive in it. See the README for locking it down later.
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <div id="fqFriendAvatar" style="width:52px;height:52px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.12)"></div>
+      <div style="flex:1;min-width:0">
+        <div class="modal-title" style="font-size:18px;margin:0" id="fqFriendName">Expense with Friend</div>
+        <div class="modal-sub" style="margin:2px 0 0" id="fqFriendBalance">All settled</div>
+      </div>
     </div>
 
-    <button class="confirm-btn" onclick="frSaveSync()">✓ Save & Connect</button>
-    <button class="cancel-btn" onclick="frCloseSync()">Cancel</button>
+    <div class="fr-label">1 · Amount (₹)</div>
+    <div class="fr-amt-grid" id="fqAmtGrid">
+      <button class="fr-amt-btn" onclick="fqSetAmt(50)">₹50</button>
+      <button class="fr-amt-btn" onclick="fqSetAmt(100)">₹100</button>
+      <button class="fr-amt-btn" onclick="fqSetAmt(200)">₹200</button>
+      <button class="fr-amt-btn" onclick="fqSetAmt(500)">₹500</button>
+    </div>
+    <input class="fr-input" style="margin-top:9px" type="number" id="fqCustomAmt" placeholder="Or enter custom amount ₹" inputmode="numeric" oninput="fqOnCustomAmt(this.value)">
+
+    <div class="fr-label">2 · How to divide?</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <label class="fq-radio-row" onclick="fqSetSplitMode('equal')">
+        <input type="radio" name="fqSplitMode" id="fqRadioEqual" checked>
+        <div class="fq-radio-txt">
+          <b>½ Split 50 / 50</b>
+          <span>I paid full, they owe me their half</span>
+        </div>
+      </label>
+      <label class="fq-radio-row" onclick="fqSetSplitMode('iPaid')">
+        <input type="radio" name="fqSplitMode" id="fqRadioIPaid">
+        <div class="fq-radio-txt">
+          <b>🙋 I paid for them</b>
+          <span>They owe me 100% of this amount</span>
+        </div>
+      </label>
+      <label class="fq-radio-row" onclick="fqSetSplitMode('theyPaid')">
+        <input type="radio" name="fqSplitMode" id="fqRadioTheyPaid">
+        <div class="fq-radio-txt">
+          <b>👤 Friend paid for me</b>
+          <span>I owe them 100% of this amount</span>
+        </div>
+      </label>
+    </div>
+    <div id="fqSplitSummary" style="font-size:12.5px;color:var(--accent);font-weight:600;margin:8px 0 4px;padding:4px 2px"></div>
+
+    <div class="fr-label">3 · Category</div>
+    <div class="fr-pick-grid" id="fqCatGrid"></div>
+
+    <div class="fr-label">4 · Description / Note (optional)</div>
+    <input class="fr-input text" type="text" id="fqDesc" placeholder="e.g. Chai, Lunch, Auto fare">
+
+    <div class="fr-toggle-row" onclick="fqToggleLog()" style="margin-top:14px">
+      <div class="fr-toggle-box on" id="fqLogBox">✓</div>
+      <div style="font-size:13.5px;font-weight:600">Also add to my personal expense log</div>
+    </div>
+
+    <button class="confirm-btn" style="margin-top:16px" onclick="fqSaveExpense()">✓ Save Expense</button>
+    <button class="cancel-btn" onclick="frCloseQuickExpense()">Cancel</button>
   </div>
 </div>
 
@@ -1019,6 +1090,11 @@ body { background:
     <div class="amount-options" id="amountOptions"></div>
     <input class="custom-input" type="number" id="customAmount" placeholder="Custom ₹" inputmode="numeric">
     <textarea class="note-input" id="noteInput" placeholder="Add a note... (optional)" rows="2"></textarea>
+    <div class="past-field" style="margin-top:10px">
+      <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">📷 Attach Photo / Receipt</label>
+      <input type="file" id="expensePhotoInput" accept="image/*" onchange="handlePhotoSelect(event, 'quick')" style="font-size:12px;padding:6px 10px" />
+      <div id="expensePhotoPreview" class="photo-preview-box"></div>
+    </div>
     <button class="confirm-btn" onclick="confirmAdd()">✓ Add Entry</button>
     <button class="cancel-btn" onclick="closeModal()">Cancel</button>
   </div>
@@ -1049,26 +1125,13 @@ body { background:
       <input type="number" id="pastAmount" placeholder="Or enter custom amount" inputmode="numeric" style="margin-top:8px" />
     </div>
     <div class="past-field"><label>Note (optional)</label><textarea id="pastNote" rows="2" placeholder="Any details..."></textarea></div>
+    <div class="past-field">
+      <label>📷 Attach Photo / Receipt (Gallery)</label>
+      <input type="file" id="pastPhotoInput" accept="image/*" onchange="handlePhotoSelect(event, 'past')" style="font-size:12px;padding:6px 10px" />
+      <div id="pastPhotoPreview" class="photo-preview-box"></div>
+    </div>
     <button class="confirm-btn" onclick="confirmPastAdd()" style="background:var(--accent2);margin-top:8px">Save Entry</button>
     <button class="cancel-btn" onclick="closePastModal()">Cancel</button>
-  </div>
-</div>
-
-<!-- ── DEPOSIT MODAL ── -->
-<div class="modal-overlay" id="depositModalOverlay" onclick="if(event.target===this)closeDepositModal()">
-  <div class="deposit-modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">💰 Add Deposit</div>
-    <div class="modal-sub" style="margin-bottom:16px">Record money added to an account</div>
-    <div class="past-field"><label>Account</label><select id="depositAccount"></select></div>
-    <div class="past-row">
-      <div class="past-field"><label>Date</label><input type="date" id="depositDate" /></div>
-      <div class="past-field"><label>Amount (₹)</label><input type="number" id="depositAmount" placeholder="38000" inputmode="numeric" /></div>
-    </div>
-    <div class="past-field"><label>Label / Source</label><input type="text" id="depositLabel" placeholder="e.g. Salary, Freelance, Transfer..." /></div>
-    <div class="past-field"><label>Note (optional)</label><textarea id="depositNote" rows="2" placeholder="Any details..."></textarea></div>
-    <button class="confirm-btn" onclick="confirmDeposit()" style="background:var(--green);margin-top:8px">💰 Save Deposit</button>
-    <button class="cancel-btn" onclick="closeDepositModal()">Cancel</button>
   </div>
 </div>
 
@@ -1087,103 +1150,24 @@ body { background:
   </div>
 </div>
 
-<!-- ── STOCK TRADE MODAL ── -->
-<div class="modal-overlay" id="stockTradeOverlay" onclick="if(event.target===this)closeStockTradeModal()">
-  <div class="past-modal" id="stockTradeModal">
+<!-- ── FRIEND REMOVE CONFIRM MODAL ── -->
+<div class="modal-overlay" id="frConfirmModalOverlay" onclick="if(event.target===this)closeFrConfirmModal()">
+  <div class="modal" style="text-align:center;padding:24px 20px">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="stModalTitle">📈 Add Trade</div>
-    <div class="modal-sub" style="margin-bottom:14px" id="stModalSub">Record a buy or sell transaction</div>
-    <div class="past-row">
-      <div class="past-field">
-        <label>Type</label>
-        <select id="stType" onchange="updateStockModalType()">
-          <option value="buy">🟢 Buy</option>
-          <option value="sell">🔴 Sell</option>
-        </select>
-      </div>
-      <div class="past-field">
-        <label>Broker</label>
-        <select id="stBroker">
-          <option value="groww">Groww</option>
-          <option value="zerodha">Zerodha</option>
-          <option value="upstox">Upstox</option>
-        </select>
-      </div>
-    </div>
-    <div class="past-field"><label>Stock Symbol / Name</label><input type="text" id="stSymbol" placeholder="e.g. RELIANCE, TCS, INFY" style="text-transform:uppercase" /></div>
-    <div class="past-row">
-      <div class="past-field"><label>Date</label><input type="date" id="stDate" /></div>
-      <div class="past-field"><label>Linked Deposit (optional)</label><select id="stDepositLink"><option value="">— None —</option></select></div>
-    </div>
-    <div class="past-row">
-      <div class="past-field"><label>Quantity</label><input type="number" id="stQty" placeholder="10" inputmode="decimal" /></div>
-      <div class="past-field"><label>Price per Share (₹)</label><input type="number" id="stPrice" placeholder="250.50" inputmode="decimal" /></div>
-    </div>
-    <div class="past-field"><label>Charges / Brokerage (₹)</label><input type="number" id="stCharges" placeholder="0" inputmode="decimal" /></div>
-    <div class="past-field"><label>Note (optional)</label><textarea id="stNote" rows="2" placeholder="e.g. bought on dip, stop loss hit..."></textarea></div>
-    <div id="stTotalPreview" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:8px;font-size:12px;color:var(--muted);display:none"></div>
-    <button class="confirm-btn" id="stConfirmBtn" onclick="confirmStockTrade()" style="background:var(--green)">Save Trade</button>
-    <button class="cancel-btn" onclick="closeStockTradeModal()">Cancel</button>
-  </div>
-</div>
-
-<!-- ── STOCK DEPOSIT MODAL ── -->
-<div class="modal-overlay" id="stockDepositOverlay" onclick="if(event.target===this)closeStockDepositModal()">
-  <div class="past-modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">💰 Add Investment Deposit</div>
-    <div class="modal-sub" style="margin-bottom:14px">Money you transferred to your demat/trading account</div>
-    <div class="past-field"><label>Broker</label>
-      <select id="sdBroker">
-        <option value="groww">Groww</option><option value="zerodha">Zerodha</option><option value="upstox">Upstox</option>
-      </select>
-    </div>
-    <div class="past-row">
-      <div class="past-field"><label>Date</label><input type="date" id="sdDate" /></div>
-      <div class="past-field"><label>Amount (₹)</label><input type="number" id="sdAmount" placeholder="10000" inputmode="numeric" /></div>
-    </div>
-    <div class="past-field"><label>Label</label><input type="text" id="sdLabel" placeholder="e.g. March Investment, Salary Savings..." /></div>
-    <div class="past-field"><label>Note</label><textarea id="sdNote" rows="2" placeholder="Optional notes..."></textarea></div>
-    <button class="confirm-btn" onclick="confirmStockDeposit()" style="background:var(--green)">💰 Save Deposit</button>
-    <button class="cancel-btn" onclick="closeStockDepositModal()">Cancel</button>
-  </div>
-</div>
-
-<!-- ── STOCK DETAIL MODAL ── -->
-<div class="import-modal-overlay" id="stockDetailOverlay">
-  <div class="import-modal">
-    <div class="import-header" style="background:var(--stock-surface,#ffffff);border-bottom:1px solid var(--stock-border)">
-      <div class="import-header-top">
-        <div class="import-title" id="sdModalTitle" style="color:var(--stock-text)">Stock Journey</div>
-        <button class="import-close" onclick="closeStockDetailModal()">✕</button>
-      </div>
-      <div id="sdModalSummary"></div>
-    </div>
-    <div class="import-body" id="sdModalBody" style="background:var(--stock-bg);padding:16px"></div>
-    <div class="import-footer" style="background:var(--stock-surface);border-top:1px solid var(--stock-border)">
-      <button class="import-btn-secondary" onclick="closeStockDetailModal()" style="border-color:var(--stock-border);color:var(--stock-muted)">Close</button>
-      <button class="import-btn-primary" onclick="openStockTradeModalFor(currentStockSymbol,'buy')" style="background:linear-gradient(135deg,#047857,#0e7490)">+ Add Trade</button>
+    <div class="modal-title" id="frConfirmTitle" style="font-size:18px;margin-bottom:8px">Remove Friend?</div>
+    <div class="modal-sub" id="frConfirmSub" style="margin-bottom:20px;font-size:13px;color:var(--muted)">Splits will stay in your history.</div>
+    <div style="display:flex;gap:10px">
+      <button class="cancel-btn" style="flex:1" onclick="closeFrConfirmModal()">Cancel</button>
+      <button class="confirm-btn" style="flex:1;background:var(--accent2)" id="frConfirmOkBtn">Yes, Remove</button>
     </div>
   </div>
 </div>
 
-<!-- ── STOCK PDF IMPORT MODAL ── -->
-<div class="import-modal-overlay" id="stockPdfOverlay">
-  <div class="import-modal">
-    <div class="import-header">
-      <div class="import-header-top">
-        <div class="import-title">📑 Import <span>Statement</span></div>
-        <button class="import-close" onclick="closeStockPdfModal()">✕</button>
-      </div>
-      <div class="import-steps">
-        <div class="import-step active" id="spstep1">1. Upload</div>
-        <div class="import-step" id="spstep2">2. Parse</div>
-        <div class="import-step" id="spstep3">3. Review</div>
-        <div class="import-step" id="spstep4">4. Done</div>
-      </div>
-    </div>
-    <div class="import-body" id="spBody"></div>
-    <div class="import-footer" id="spFooter"></div>
+<!-- ── PHOTO VIEWER LIGHTBOX ── -->
+<div class="modal-overlay" id="photoViewerOverlay" onclick="this.classList.remove('open')">
+  <div style="max-width:90vw;max-height:90vh;text-align:center;padding:16px">
+    <img id="photoViewerImg" src="" style="max-width:100%;max-height:75vh;border-radius:14px;box-shadow:0 12px 36px rgba(0,0,0,0.4);border:1px solid var(--border)">
+    <div style="color:var(--muted);margin-top:12px;font-size:12px">Tap anywhere to close photo</div>
   </div>
 </div>
 
@@ -1442,10 +1426,48 @@ function renderQuickGrid() {
 // ═══════════════════════════════════════════════════
 let currentItem = null, selectedAmount = null;
 
+let currentPhotoData = { quick: null, past: null };
+
+function handlePhotoSelect(e, mode) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    currentPhotoData[mode] = evt.target.result;
+    renderPhotoPreview(mode);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto(mode) {
+  currentPhotoData[mode] = null;
+  const inputEl = document.getElementById(mode === 'quick' ? 'expensePhotoInput' : 'pastPhotoInput');
+  if (inputEl) inputEl.value = '';
+  renderPhotoPreview(mode);
+}
+
+function renderPhotoPreview(mode) {
+  const container = document.getElementById(mode === 'quick' ? 'expensePhotoPreview' : 'pastPhotoPreview');
+  if (!container) return;
+  const data = currentPhotoData[mode];
+  if (!data) {
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = `<div class="photo-thumb-wrap">
+    <img src="${data}" class="photo-thumb" alt="Receipt">
+    <button type="button" class="photo-remove-btn" onclick="removePhoto('${mode}')">✕</button>
+  </div>`;
+}
+
 function openModal(itemId) {
   currentItem = state.quickItems.find(q => q.id === itemId);
   if (!currentItem) return;
   selectedAmount = null;
+  currentPhotoData['quick'] = null;
+  const photoInput = document.getElementById('expensePhotoInput');
+  if (photoInput) photoInput.value = '';
+  renderPhotoPreview('quick');
   document.getElementById('modalTitle').textContent = currentItem.icon + ' ' + currentItem.name;
   document.getElementById('modalSub').textContent = currentItem.category + ' · ' + currentItem.subcategory;
   document.getElementById('customAmount').value = '';
@@ -1474,7 +1496,7 @@ function handleOverlayClick(e) {
 
 function closeModal() {
   document.getElementById('modalOverlay').classList.remove('open');
-  currentItem = null; selectedAmount = null;
+  currentItem = null; selectedAmount = null; currentPhotoData['quick'] = null;
 }
 
 function confirmAdd() {
@@ -1492,6 +1514,7 @@ function confirmAdd() {
     subcategory: currentItem.subcategory,
     amount,
     note,
+    photo: currentPhotoData['quick'],
     accountId: state.activeAccount,
   };
   state.entries.push(entry);
@@ -1523,12 +1546,14 @@ function logRow(e) {
   const accBadge = state.accounts.length > 1
     ? `<span style="font-size:9px;background:${acc.color}22;color:${acc.color};border-radius:4px;padding:1px 5px;margin-left:4px">${acc.name}</span>` : '';
   const pastBadge = e.isPast ? `<span style="font-size:9px;background:rgba(225,29,72,0.10);color:var(--accent2);border-radius:4px;padding:1px 5px;margin-left:4px">past</span>` : '';
+  const photoBadge = e.photo ? `<button class="log-photo-btn" onclick="viewPhoto('${e.id}')">📷 Receipt</button>` : '';
   return `<div class="log-item" id="entry-${e.id}">
     <span class="log-icon">${e.icon}</span>
     <div class="log-info">
       <div class="log-name">${e.name}${pastBadge}${accBadge}</div>
       <div class="log-cat" style="color:${catColor(e.category)}">${e.category} · ${e.subcategory}</div>
       ${e.note ? `<div class="log-note">${e.note}</div>` : ''}
+      ${photoBadge}
     </div>
     <div>
       <div class="log-amount">${fmt(e.amount)}</div>
@@ -1536,6 +1561,13 @@ function logRow(e) {
     </div>
     <button class="log-delete" onclick="deleteEntry(${e.id})">✕</button>
   </div>`;
+}
+
+function viewPhoto(entryId) {
+  const entry = state.entries.find(e => String(e.id) === String(entryId));
+  if (!entry || !entry.photo) return;
+  document.getElementById('photoViewerImg').src = entry.photo;
+  document.getElementById('photoViewerOverlay').classList.add('open');
 }
 
 function deleteEntry(id) {
@@ -1804,6 +1836,10 @@ function openPastModal() {
   document.getElementById('pastNote').value = '';
   document.getElementById('pastAmount').value = '';
   pastSelectedAmount = null;
+  currentPhotoData['past'] = null;
+  const photoInput = document.getElementById('pastPhotoInput');
+  if (photoInput) photoInput.value = '';
+  renderPhotoPreview('past');
   const accSel = document.getElementById('pastAccount');
   accSel.innerHTML = state.accounts.map(a=>`<option value="${a.id}" ${a.id===state.activeAccount?'selected':''}>${a.name}</option>`).join('');
   const catSel = document.getElementById('pastCategory');
@@ -1832,7 +1868,7 @@ function selectPastAmount(val, el) {
 
 function closePastModal() {
   document.getElementById('pastModalOverlay').classList.remove('open');
-  pastSelectedAmount = null;
+  pastSelectedAmount = null; currentPhotoData['past'] = null;
 }
 
 function confirmPastAdd() {
@@ -1850,7 +1886,7 @@ function confirmPastAdd() {
   const catIcons = {Food:'🍽️',Courses:'📚',Family:'👨‍👩‍👧',Friends:'👫',Unnecessary:'🛍️'};
   const matched = state.quickItems.find(q=>q.category===category);
   const icon = matched ? matched.icon : (catIcons[category]||'💰');
-  const entry = { id:Date.now(), date, time, name, icon, category, subcategory, amount, note, isPast:true, accountId };
+  const entry = { id:Date.now(), date, time, name, icon, category, subcategory, amount, note, photo: currentPhotoData['past'], isPast:true, accountId };
   state.entries.push(entry);
   state.entries.sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
   saveState();
@@ -1909,9 +1945,6 @@ function renderCharts() {
   renderInsights();
   renderCatBar();
   renderDailyChart();
-  renderDonut();
-  renderFoodBar();
-  renderWeeklyChart();
 }
 
 function renderStats() {
@@ -1976,7 +2009,6 @@ function renderDailyChart() {
   if (entries.length === 0) return;
   const allDates = [...new Set(entries.map(e=>e.date))].sort();
   if (allDates.length === 0) return;
-  // Show up to last 30 days or all dates in selected month
   let labels, data;
   if (chartMonthFilter !== 'all') {
     const [y,m] = chartMonthFilter.split('-').map(Number);
@@ -1991,87 +2023,54 @@ function renderDailyChart() {
     labels = last30.map(d=>d.slice(5));
     data = last30.map(date=>entries.filter(e=>e.date===date).reduce((s,e)=>s+e.amount,0));
   }
-  const ctx = document.getElementById('dailyChart').getContext('2d');
+  const canvas = document.getElementById('dailyChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
   chartInstances['daily'] = new Chart(ctx, {
-    type:'bar', data:{labels, datasets:[{data, backgroundColor:data.map(v=>v>0?'rgba(79,70,229,0.78)':'rgba(148,163,184,0.28)'), borderColor:'rgba(79,70,229,1)', borderWidth:1, borderRadius:4}]},
-    options:{responsive:true, plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>'₹'+ctx.raw}}},
-      scales:{x:{ticks:{color:'#64748b',font:{size:9}},grid:{color:'rgba(148,163,184,0.28)'}}, y:{ticks:{color:'#64748b',font:{size:9},callback:v=>'₹'+v},grid:{color:'rgba(148,163,184,0.28)'},beginAtZero:true}}}
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Spent (₹)',
+        data,
+        backgroundColor: data.map(v => v > 0 ? 'rgba(79,70,229,0.85)' : 'rgba(148,163,184,0.2)'),
+        borderColor: 'rgba(79,70,229,1)',
+        borderWidth: 1,
+        borderRadius: 6,
+        barPercentage: 0.85,
+        categoryPercentage: 0.9,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      onClick: (evt, activeElements) => {
+        if (activeElements && activeElements.length > 0) {
+          const index = activeElements[0].index;
+          const label = labels[index];
+          const val = data[index];
+          showToast(`Day ${label}: Spent ₹${val}`);
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          padding: 12,
+          bodyFont: { size: 13, family: 'Sora' },
+          callbacks: { label: ctx => 'Daily Total: ₹' + fmt(ctx.raw) }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#64748b', font: { size: 10, family: 'Sora' } }, grid: { color: 'rgba(148,163,184,0.15)' } },
+        y: { ticks: { color: '#64748b', font: { size: 10, family: 'Sora' }, callback: v => '₹' + v }, grid: { color: 'rgba(148,163,184,0.15)' }, beginAtZero: true }
+      }
+    }
   });
 }
 
-function renderDonut() {
-  destroyChart('donut');
-  const totals = catTotals();
-  const cats = Object.keys(totals).filter(c=>totals[c]>0);
-  if (cats.length === 0) return;
-  const ctx = document.getElementById('donutChart').getContext('2d');
-  chartInstances['donut'] = new Chart(ctx, {
-    type:'doughnut',
-    data:{labels:cats, datasets:[{data:cats.map(c=>totals[c]), backgroundColor:cats.map(c=>catColor(c)), borderColor:'#ffffff', borderWidth:3, hoverOffset:8}]},
-    options:{responsive:true, cutout:'62%', plugins:{legend:{position:'bottom',labels:{color:'#0f172a',padding:14,font:{size:11,family:'Sora'},boxWidth:10,borderRadius:5}}, tooltip:{callbacks:{label:ctx=>ctx.label+': ₹'+ctx.raw}}}}
-  });
-}
-
-function renderFoodBar() {
-  const entries = getChartEntries().filter(e=>e.category==='Food');
-  const subs = {};
-  entries.forEach(e=>{subs[e.subcategory]=(subs[e.subcategory]||0)+e.amount;});
-  const max = Math.max(...Object.values(subs),1);
-  const colors = ['#ffb347','#fc5c7d','#5cc8fc','#40c9a2','#ffd166'];
-  let i = 0;
-  document.getElementById('foodBarChart').innerHTML = Object.keys(subs).length===0
-    ? '<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px">No food entries yet</div>'
-    : Object.entries(subs).map(([sub,val])=>`<div class="cat-bar-row">
-        <div class="cat-bar-label" style="font-size:10px">${sub}</div>
-        <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${(val/max*100).toFixed(1)}%;background:${colors[i++%colors.length]}"></div></div>
-        <div class="cat-bar-val">${fmt(val)}</div>
-      </div>`).join('');
-}
-
-function renderWeeklyChart() {
-  destroyChart('weekly');
-  const entries = getChartEntries();
-  if (entries.length === 0) return;
-
-  // Build real weekly buckets from entries (last 8 weeks)
-  const weekMap = {};
-  entries.forEach(e => {
-    const d = new Date(e.date + 'T00:00:00');
-    // ISO week: get Monday
-    const day = d.getDay() || 7;
-    const monday = new Date(d);
-    monday.setDate(d.getDate() - day + 1);
-    const wk = monday.toISOString().slice(0,10);
-    if (!weekMap[wk]) weekMap[wk] = {};
-    weekMap[wk][e.category] = (weekMap[wk][e.category]||0) + e.amount;
-  });
-
-  const weeks = Object.keys(weekMap).sort().slice(-8);
-  const labels = weeks.map(w => {
-    const d = new Date(w+'T00:00:00');
-    return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
-  });
-
-  const datasets = state.categories.map(cat => ({
-    label: cat,
-    data: weeks.map(w => weekMap[w][cat]||0),
-    backgroundColor: catColor(cat),
-    borderRadius: 4,
-    borderWidth: 0,
-  }));
-
-  const ctx = document.getElementById('weeklyChart').getContext('2d');
-  chartInstances['weekly'] = new Chart(ctx, {
-    type:'bar', data:{labels, datasets},
-    options:{responsive:true, plugins:{
-      legend:{position:'bottom',labels:{color:'#0f172a',font:{size:10,family:'Sora'},boxWidth:8,padding:10}},
-      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': ₹'+ctx.raw}}
-    }, scales:{
-      x:{stacked:true, ticks:{color:'#64748b',font:{size:9}}, grid:{color:'rgba(148,163,184,0.28)'}},
-      y:{stacked:true, ticks:{color:'#64748b',font:{size:9},callback:v=>'₹'+v}, grid:{color:'rgba(148,163,184,0.28)'},beginAtZero:true}
-    }}
-  });
-}
+function renderDonut() {}
+function renderFoodBar() {}
+function renderWeeklyChart() {}
 
 // ═══════════════════════════════════════════════════
 // SETTINGS
@@ -2452,11 +2451,12 @@ function clearAllData() {
 // ═══════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════
-const PAGES = ['home','deposits','log','charts','stocks','friends','settings'];
+const PAGES = ['home','log','charts','friends','settings'];
 
 function showPage(name) {
   PAGES.forEach(p => {
-    document.getElementById('page-'+p).classList.toggle('active', p===name);
+    const pageEl = document.getElementById('page-'+p);
+    if (pageEl) pageEl.classList.toggle('active', p===name);
     const bn = document.getElementById('bn'+p.charAt(0).toUpperCase()+p.slice(1));
     if (bn) bn.classList.toggle('active', p===name);
   });
@@ -2467,8 +2467,6 @@ function showPage(name) {
   if (name==='charts') renderCharts();
   if (name==='log') renderFullLog();
   if (name==='settings') renderSettings();
-  if (name==='deposits') renderDeposits();
-  if (name==='stocks') renderStocksPage();
   if (name==='friends') { renderFriendsPage(); frSyncNow(true); }
 }
 
@@ -3929,49 +3927,86 @@ function frTotals() {
   return { owed, owe };
 }
 
-// ═══════ RENDER ═══════
+// ═══════ RENDER FRIENDS ═══════
 function renderFriendsPage() {
-  document.getElementById('frMyCode').textContent = fr.me.code;
-  document.getElementById('frMyName').textContent =
-    (fr.me.name && fr.me.name !== 'Me' ? fr.me.name + ' · ' : '') + 'Share this code so friends can connect';
-
-  const on = !!frSync.url;
-  document.getElementById('frSyncStatus').innerHTML = on
-    ? `<div class="fr-sync-pill on" onclick="frOpenSync()" style="cursor:pointer">🟢 Sync ON · tap to change</div>`
-    : `<div class="fr-sync-pill off" onclick="frOpenSync()" style="cursor:pointer">🟠 Offline mode · tap to set up live sync</div>`;
-
   const t = frTotals();
-  document.getElementById('frOwedToMe').textContent = fmt(t.owed);
-  document.getElementById('frIOwe').textContent = fmt(t.owe);
+  const owedEl = document.getElementById('frOwedToMe');
+  const oweEl = document.getElementById('frIOwe');
+  if (owedEl) owedEl.textContent = fmt(t.owed);
+  if (oweEl) oweEl.textContent = fmt(t.owe);
 
+  renderQuickRail();
   renderFriendList();
   renderSplitList();
 }
 
+function renderQuickRail() {
+  const rail = document.getElementById('frQuickRail');
+  if (!rail) return;
+  let html = '';
+  fr.friends.forEach(f => {
+    const b = frBalanceWith(f.code);
+    const balCls = b > 0 ? 'pos' : (b < 0 ? 'neg' : 'zero');
+    const balTxt = b > 0 ? `+${fmt(b)}` : (b < 0 ? `-${fmt(Math.abs(b))}` : '₹0');
+    const avatarContent = f.photo 
+      ? `<img src="${f.photo}" alt="${f.name}">` 
+      : `<span style="font-weight:700">${(f.name||'?').charAt(0).toUpperCase()}</span>`;
+    const bgStyle = f.photo ? 'background:#000;' : `background:${frColorOf(f.code)};`;
+    
+    html += `
+      <div class="fr-rail-item" onclick="frQuickExpenseWith('${f.code}')" title="Add expense with ${f.name}">
+        <div class="fr-rail-avatar" style="${bgStyle}">
+          ${avatarContent}
+        </div>
+        <div class="fr-rail-name">${f.name}</div>
+        <div class="fr-rail-bal ${balCls}">${balTxt}</div>
+      </div>
+    `;
+  });
+
+  // + Add Friend circular button
+  html += `
+    <div class="fr-rail-item" onclick="frOpenAddFriend()">
+      <div class="fr-rail-add-btn">+</div>
+      <div class="fr-rail-name" style="color:var(--accent)">+ Add</div>
+      <div class="fr-rail-bal zero">Friend</div>
+    </div>
+  `;
+  rail.innerHTML = html;
+}
+
 function renderFriendList() {
   const el = document.getElementById('frFriendList');
+  if (!el) return;
   if (!fr.friends.length) {
-    el.innerHTML = `<div class="fr-empty"><span class="ic">👥</span>No friends connected yet.<br>Tap <b>Add Friend</b> and enter their 6-character code.</div>`;
+    el.innerHTML = `<div class="fr-empty"><span class="ic">👥</span>No friends added yet.<br>Tap <b>➕ Add Friend</b> above to add your friend with their photo!</div>`;
     return;
   }
   el.innerHTML = fr.friends.map(f => {
     const b = frBalanceWith(f.code);
     const col = b > 0 ? 'var(--green)' : (b < 0 ? 'var(--accent2)' : 'var(--muted)');
     const tag = b > 0 ? 'owes you' : (b < 0 ? 'you owe' : 'all settled');
+    const avatarContent = f.photo 
+      ? `<img src="${f.photo}" alt="${f.name}">` 
+      : (f.name||'?').charAt(0).toUpperCase();
+    const bgStyle = f.photo ? 'background:#000;' : `background:${frColorOf(f.code)};`;
     return `<div class="fr-friend-card" style="flex-wrap:wrap">
-      <div class="fr-avatar" style="background:${frColorOf(f.code)}">${(f.name||'?').charAt(0).toUpperCase()}</div>
-      <div class="fr-f-info">
+      <div class="fr-avatar" style="${bgStyle}" onclick="frQuickExpenseWith('${f.code}')" title="Tap to add expense">
+        ${avatarContent}
+      </div>
+      <div class="fr-f-info" onclick="frQuickExpenseWith('${f.code}')" style="cursor:pointer">
         <div class="fr-f-name">${f.name}</div>
-        <div class="fr-f-code">${f.code}</div>
+        <div class="fr-f-sub" style="color:var(--accent);font-size:11px">⚡ Tap to add expense</div>
       </div>
       <div class="fr-f-amt">
         <div class="fr-f-val" style="color:${col}">${fmt(Math.abs(b))}</div>
         <div class="fr-f-tag">${tag}</div>
       </div>
       <div class="fr-f-actions" style="width:100%">
+        <button class="fr-mini-btn act" onclick="frQuickExpenseWith('${f.code}')">⚡ Add Expense</button>
         <button class="fr-mini-btn" onclick="frOpenSplitWith('${f.code}')">➗ Split</button>
         ${b !== 0 ? `<button class="fr-mini-btn pos" onclick="frSettleAll('${f.code}')">✓ Settle up</button>` : ''}
-        <button class="fr-mini-btn dan" onclick="frRemoveFriend('${f.code}')">Remove</button>
+        <button class="fr-mini-btn dan" onclick="frRemoveFriend('${f.code}', event)">Remove</button>
       </div>
     </div>`;
   }).join('');
@@ -3979,9 +4014,10 @@ function renderFriendList() {
 
 function renderSplitList() {
   const el = document.getElementById('frSplitList');
+  if (!el) return;
   const list = [...fr.splits].sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 25);
   if (!list.length) {
-    el.innerHTML = `<div class="fr-empty"><span class="ic">🧾</span>No splits yet.<br>Tap <b>Split an Expense</b> right after you pay.</div>`;
+    el.innerHTML = `<div class="fr-empty"><span class="ic">🧾</span>No splits yet.<br>Tap <b>Split an Expense</b> or use ⚡ Quick Expense above.</div>`;
     return;
   }
   el.innerHTML = list.map(s => {
@@ -4006,52 +4042,348 @@ function renderSplitList() {
   }).join('');
 }
 
-// ═══════ ADD FRIEND ═══════
-function frOpenAddFriend() {
-  document.getElementById('frAddCode').value = '';
-  document.getElementById('frAddName').value = '';
-  document.getElementById('frAddOverlay').classList.add('open');
+// ─── Remove Friend ───────────────────────────────────
+let pendingRemoveFriendCode = null;
+
+function frRemoveFriend(code, event) {
+  if (event && event.stopPropagation) event.stopPropagation();
+  pendingRemoveFriendCode = code;
+  const name = frNameOf(code);
+  const titleEl = document.getElementById('frConfirmTitle');
+  const subEl = document.getElementById('frConfirmSub');
+  const okBtn = document.getElementById('frConfirmOkBtn');
+  if (titleEl) titleEl.textContent = `Remove ${name}?`;
+  if (subEl) subEl.textContent = `Splits with ${name} will stay in your history.`;
+  if (okBtn) okBtn.onclick = frConfirmRemoveFriendDo;
+  const modalEl = document.getElementById('frConfirmModalOverlay');
+  if (modalEl) modalEl.classList.add('open');
 }
-function frCloseAddFriend() { document.getElementById('frAddOverlay').classList.remove('open'); }
+function closeFrConfirmModal() {
+  const modalEl = document.getElementById('frConfirmModalOverlay');
+  if (modalEl) modalEl.classList.remove('open');
+  pendingRemoveFriendCode = null;
+}
+function frConfirmRemoveFriendDo() {
+  if (!pendingRemoveFriendCode) return;
+  const code = pendingRemoveFriendCode;
+  fr.friends = fr.friends.filter(f => f.code !== code);
+  frSave();
+  closeFrConfirmModal();
+  renderFriendsPage();
+  showToast('✅ Friend removed');
+}
 
-async function frAddFriend() {
-  const code = (document.getElementById('frAddCode').value || '').trim().toUpperCase();
-  let name = (document.getElementById('frAddName').value || '').trim();
-  if (code.length !== 6) { showToast('Enter the full 6-character code'); return; }
-  if (code === fr.me.code) { showToast("That's your own code 🙂"); return; }
-  if (frFriendByCode(code)) { showToast('Already connected'); return; }
+// ═══════ ADD FRIEND (PHOTO FROM GALLERY + NAME) ═══════
+let frNewFriendPhoto = '';
+let frNewFriendColor = FR_AVATAR_COLORS[0];
 
-  if (frSync.url) {
-    const remote = await frGet('users/' + code);
-    if (!remote) { showToast('Code not found — ask them to open the app once'); return; }
-    if (!name) name = remote.name || code;
-    await frPut('links/' + code + '/' + fr.me.code, { name: fr.me.name || 'Friend', ts: Date.now() });
+function frOpenAddFriend() {
+  frNewFriendPhoto = '';
+  frNewFriendColor = FR_AVATAR_COLORS[Math.floor(Math.random() * FR_AVATAR_COLORS.length)];
+  const nameInp = document.getElementById('frAddName');
+  if (nameInp) nameInp.value = '';
+  const fileInp = document.getElementById('frPhotoInput');
+  if (fileInp) fileInp.value = '';
+  frUpdateAvatarPreview();
+  frRenderColorPalette();
+  const overlay = document.getElementById('frAddOverlay');
+  if (overlay) overlay.classList.add('open');
+  if (nameInp) setTimeout(() => nameInp.focus(), 150);
+}
+
+function frCloseAddFriend() {
+  const overlay = document.getElementById('frAddOverlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+function frUpdateAvatarPreview() {
+  const prev = document.getElementById('frAvatarPreview');
+  if (!prev) return;
+  if (frNewFriendPhoto) {
+    prev.innerHTML = `<img src="${frNewFriendPhoto}" style="width:100%;height:100%;object-fit:cover;">`;
+    prev.style.background = '#000';
+  } else {
+    prev.innerHTML = `<span id="frAvatarPreviewText" style="font-size:32px">👤</span>`;
+    prev.style.background = frNewFriendColor;
   }
-  if (!name) name = code;
+}
 
-  fr.friends.push({ code, name, color: FR_AVATAR_COLORS[fr.friends.length % FR_AVATAR_COLORS.length] });
+function frRenderColorPalette() {
+  const el = document.getElementById('frColorPalette');
+  if (!el) return;
+  el.innerHTML = FR_AVATAR_COLORS.map(c => `
+    <div class="fr-color-dot ${c === frNewFriendColor && !frNewFriendPhoto ? 'sel' : ''}" 
+         style="background:${c}" 
+         onclick="frPickColor('${c}')"></div>
+  `).join('');
+}
+
+function frPickColor(c) {
+  frNewFriendColor = c;
+  frRenderColorPalette();
+  if (!frNewFriendPhoto) {
+    frUpdateAvatarPreview();
+  }
+}
+
+function frHandlePhotoSelected(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // Downscale and crop to square 200x200 canvas to ensure persistent, compact localStorage
+      const canvas = document.createElement('canvas');
+      const size = 200;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const minSide = Math.min(img.width, img.height);
+      const sx = (img.width - minSide) / 2;
+      const sy = (img.height - minSide) / 2;
+      ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+      frNewFriendPhoto = canvas.toDataURL('image/jpeg', 0.85);
+      frUpdateAvatarPreview();
+      showToast('📷 Photo applied!');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function frSaveFriend() {
+  const nameInp = document.getElementById('frAddName');
+  const name = (nameInp ? nameInp.value : '').trim();
+  if (!name) {
+    showToast('Please enter your friend’s name');
+    if (nameInp) nameInp.focus();
+    return;
+  }
+  const code = 'fr_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+  fr.friends.push({
+    code,
+    name,
+    photo: frNewFriendPhoto || '',
+    color: frNewFriendColor || FR_AVATAR_COLORS[0]
+  });
   frSave();
   frCloseAddFriend();
   renderFriendsPage();
-  showToast('✅ Connected with ' + name);
+  showToast('✅ Added ' + name);
 }
 
-function frRemoveFriend(code) {
-  if (!confirm('Remove ' + frNameOf(code) + '? Splits stay in your history.')) return;
-  fr.friends = fr.friends.filter(f => f.code !== code);
+// ═══════ QUICK FRIEND EXPENSE (1-TAP ON PHOTO) ═══════
+let fqDraft = {
+  code: '',
+  amount: 0,
+  splitMode: 'equal', // 'equal', 'iPaid', 'theyPaid'
+  category: 'Food',
+  desc: '',
+  alsoLog: true
+};
+
+function frQuickExpenseWith(code) {
+  const friend = frFriendByCode(code);
+  if (!friend) return;
+  fqDraft = {
+    code,
+    amount: 0,
+    splitMode: 'equal',
+    category: state.categories[0] || 'Food',
+    desc: '',
+    alsoLog: true
+  };
+
+  // Header avatar & name
+  const avatarEl = document.getElementById('fqFriendAvatar');
+  if (avatarEl) {
+    if (friend.photo) {
+      avatarEl.innerHTML = `<img src="${friend.photo}" style="width:100%;height:100%;object-fit:cover;">`;
+      avatarEl.style.background = '#000';
+    } else {
+      avatarEl.textContent = (friend.name || '?').charAt(0).toUpperCase();
+      avatarEl.style.background = frColorOf(friend.code);
+    }
+  }
+  const nameEl = document.getElementById('fqFriendName');
+  if (nameEl) nameEl.textContent = friend.name;
+
+  const b = frBalanceWith(friend.code);
+  const balEl = document.getElementById('fqFriendBalance');
+  if (balEl) {
+    balEl.textContent = b > 0 ? `Owes you ${fmt(b)}` : (b < 0 ? `You owe ${fmt(-b)}` : 'All settled');
+    balEl.style.color = b > 0 ? 'var(--green)' : (b < 0 ? 'var(--accent2)' : 'var(--muted)');
+  }
+
+  // Clear inputs
+  document.querySelectorAll('#fqAmtGrid .fr-amt-btn').forEach(btn => btn.classList.remove('sel'));
+  const customInp = document.getElementById('fqCustomAmt');
+  if (customInp) customInp.value = '';
+  const descInp = document.getElementById('fqDesc');
+  if (descInp) descInp.value = '';
+
+  // Render categories
+  const catGrid = document.getElementById('fqCatGrid');
+  if (catGrid) {
+    catGrid.innerHTML = state.categories.map(c => `
+      <button class="fr-pick ${fqDraft.category === c ? 'sel' : ''}" onclick="fqPickCat('${c}')">${c}</button>
+    `).join('');
+  }
+
+  fqSetSplitMode('equal');
+  fqUpdateLogBox();
+
+  const modal = document.getElementById('frQuickExpenseOverlay');
+  if (modal) modal.classList.add('open');
+}
+
+function frCloseQuickExpense() {
+  const modal = document.getElementById('frQuickExpenseOverlay');
+  if (modal) modal.classList.remove('open');
+}
+
+function fqSetAmt(val) {
+  fqDraft.amount = Number(val);
+  document.querySelectorAll('#fqAmtGrid .fr-amt-btn').forEach(btn => {
+    btn.classList.toggle('sel', btn.textContent.trim() === '₹' + val);
+  });
+  const customInp = document.getElementById('fqCustomAmt');
+  if (customInp) customInp.value = '';
+  fqUpdateSplitSummary();
+}
+
+function fqOnCustomAmt(val) {
+  fqDraft.amount = Math.max(0, Number(val) || 0);
+  document.querySelectorAll('#fqAmtGrid .fr-amt-btn').forEach(btn => btn.classList.remove('sel'));
+  fqUpdateSplitSummary();
+}
+
+function fqPickCat(c) {
+  fqDraft.category = c;
+  document.querySelectorAll('#fqCatGrid .fr-pick').forEach(btn => {
+    btn.classList.toggle('sel', btn.textContent.trim() === c);
+  });
+}
+
+function fqSetSplitMode(mode) {
+  fqDraft.splitMode = mode;
+  const rEqual = document.getElementById('fqRadioEqual');
+  const rIPaid = document.getElementById('fqRadioIPaid');
+  const rTheyPaid = document.getElementById('fqRadioTheyPaid');
+  if (rEqual) rEqual.checked = mode === 'equal';
+  if (rIPaid) rIPaid.checked = mode === 'iPaid';
+  if (rTheyPaid) rTheyPaid.checked = mode === 'theyPaid';
+  fqUpdateSplitSummary();
+}
+
+function fqToggleLog() {
+  fqDraft.alsoLog = !fqDraft.alsoLog;
+  fqUpdateLogBox();
+}
+
+function fqUpdateLogBox() {
+  const box = document.getElementById('fqLogBox');
+  if (box) {
+    box.classList.toggle('on', fqDraft.alsoLog);
+    box.textContent = fqDraft.alsoLog ? '✓' : '';
+  }
+}
+
+function fqUpdateSplitSummary() {
+  const summaryEl = document.getElementById('fqSplitSummary');
+  if (!summaryEl) return;
+  const friend = frFriendByCode(fqDraft.code);
+  const fName = friend ? friend.name : 'Friend';
+  const amt = fqDraft.amount;
+  if (!amt || amt <= 0) {
+    summaryEl.textContent = 'Select or enter an amount to see split preview';
+    summaryEl.style.color = 'var(--muted)';
+    return;
+  }
+  summaryEl.style.color = 'var(--accent)';
+  if (fqDraft.splitMode === 'equal') {
+    const myShare = Math.ceil(amt / 2);
+    const theirShare = Math.floor(amt / 2);
+    summaryEl.textContent = `Total ${fmt(amt)} · You pay ${fmt(myShare)}, ${fName} owes you ${fmt(theirShare)}`;
+  } else if (fqDraft.splitMode === 'iPaid') {
+    summaryEl.textContent = `Total ${fmt(amt)} · You paid for ${fName} (${fName} owes you ${fmt(amt)})`;
+  } else if (fqDraft.splitMode === 'theyPaid') {
+    summaryEl.textContent = `Total ${fmt(amt)} · ${fName} paid for you (You owe ${fName} ${fmt(amt)})`;
+  }
+}
+
+function fqSaveExpense() {
+  if (!fqDraft.amount || fqDraft.amount <= 0) {
+    showToast('Please enter an amount');
+    return;
+  }
+  const friend = frFriendByCode(fqDraft.code);
+  if (!friend) return;
+
+  const amt = fqDraft.amount;
+  const desc = (document.getElementById('fqDesc')?.value || '').trim();
+  const now = new Date();
+  const dateStr = todayStr();
+  const timeStr = now.toTimeString().slice(0, 5);
+
+  let payer = 'me';
+  let parts = {};
+  let myLogAmount = 0;
+
+  if (fqDraft.splitMode === 'equal') {
+    payer = 'me';
+    const myShare = Math.ceil(amt / 2);
+    const theirShare = Math.floor(amt / 2);
+    parts = { 'me': myShare, [friend.code]: theirShare };
+    myLogAmount = myShare;
+  } else if (fqDraft.splitMode === 'iPaid') {
+    payer = 'me';
+    parts = { [friend.code]: amt };
+    myLogAmount = amt;
+  } else if (fqDraft.splitMode === 'theyPaid') {
+    payer = friend.code;
+    parts = { 'me': amt };
+    myLogAmount = 0;
+  }
+
+  const split = {
+    id: 'sp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    ts: Date.now(),
+    date: dateStr,
+    time: timeStr,
+    desc: desc || (fqDraft.splitMode === 'equal' ? '50/50 with ' + friend.name : fqDraft.category + ' with ' + friend.name),
+    category: fqDraft.category,
+    total: amt,
+    payer,
+    parts,
+    settled: {},
+    createdBy: fr.me.code
+  };
+
+  fr.splits.unshift(split);
   frSave();
-  renderFriendsPage();
-}
 
-function frCopyCode() {
-  const t = fr.me.code;
-  if (navigator.clipboard) navigator.clipboard.writeText(t).then(() => showToast('📋 Code copied'));
-  else showToast('Your code: ' + t);
-}
-function frShareCode() {
-  const txt = `Connect with me on Finance Tracker. My code: ${fr.me.code}`;
-  if (navigator.share) navigator.share({ title: 'My connect code', text: txt }).catch(() => {});
-  else frCopyCode();
+  // Log in personal tracker if enabled
+  if (fqDraft.alsoLog && myLogAmount > 0) {
+    state.entries.unshift({
+      id: Date.now(),
+      accountId: state.activeAccount,
+      name: desc || (fqDraft.category + ' · ' + friend.name),
+      category: fqDraft.category,
+      subcategory: 'Friend Expense',
+      amount: myLogAmount,
+      note: (desc ? desc + ' · ' : '') + 'with ' + friend.name,
+      date: dateStr,
+      time: timeStr
+    });
+    saveState();
+    renderAll();
+  }
+
+  frCloseQuickExpense();
+  renderFriendsPage();
+  showToast('✓ Added expense with ' + friend.name);
 }
 
 // ═══════ SPLIT FLOW ═══════
@@ -4084,8 +4416,13 @@ function frRenderSplitModal() {
     `<button class="fr-pick ${frDraft.payer === 'me' ? 'sel' : ''}" onclick="frPickPayer('me')">🙋 I paid</button>` +
     fr.friends.map(f => `<button class="fr-pick ${frDraft.payer === f.code ? 'sel' : ''}" onclick="frPickPayer('${f.code}')">${f.name} paid</button>`).join('');
 
-  document.getElementById('frFriendPick').innerHTML = fr.friends.map(f =>
-    `<button class="fr-pick ${frDraft.selected.includes(f.code) ? 'sel' : ''}" onclick="frToggleFriend('${f.code}')">${frDraft.selected.includes(f.code) ? '✓ ' : ''}${f.name}</button>`).join('');
+  document.getElementById('frFriendPick').innerHTML = fr.friends.map(f => {
+    const isSel = frDraft.selected.includes(f.code);
+    const imgHtml = f.photo
+      ? `<span class="p-img" style="background:#000"><img src="${f.photo}"></span>`
+      : `<span class="p-img" style="background:${frColorOf(f.code)}">${(f.name||'?').charAt(0).toUpperCase()}</span>`;
+    return `<button class="fr-pick-avatar-btn ${isSel ? 'sel' : ''}" onclick="frToggleFriend('${f.code}')">${imgHtml}${isSel ? '✓ ' : ''}${f.name}</button>`;
+  }).join('');
 
   document.getElementById('frModeEqual').classList.toggle('sel', frDraft.mode === 'equal');
   document.getElementById('frModeCustom').classList.toggle('sel', frDraft.mode === 'custom');
@@ -4260,30 +4597,11 @@ async function frPatch(path, data) {
   } catch (e) { return null; }
 }
 
-function frOpenSync() {
-  document.getElementById('frSyncURL').value = frSync.url || '';
-  document.getElementById('frMyNameInput').value = fr.me.name === 'Me' ? '' : fr.me.name;
-  document.getElementById('frSyncOverlay').classList.add('open');
-}
-function frCloseSync() { document.getElementById('frSyncOverlay').classList.remove('open'); }
+// (Sync overlay removed — these are kept as no-ops to avoid errors)
+function frOpenSync() {}
+function frCloseSync() {}
+async function frSaveSync() {}
 
-async function frSaveSync() {
-  const url = (document.getElementById('frSyncURL').value || '').trim();
-  const nm = (document.getElementById('frMyNameInput').value || '').trim();
-  if (nm) fr.me.name = nm;
-  frSync.url = url;
-  frSaveSyncCfg();
-  frSave();
-  frCloseSync();
-  if (url) {
-    const ok = await frPut('users/' + fr.me.code, { name: fr.me.name, ts: Date.now() });
-    showToast(ok ? '🟢 Sync connected' : '⚠️ Could not reach database — check URL & rules');
-    await frSyncNow();
-  } else {
-    showToast('Sync turned off (offline mode)');
-  }
-  renderFriendsPage();
-}
 
 // push a split to each friend's feed
 async function frPushSplit(split) {
@@ -4363,14 +4681,13 @@ async function frSyncNow(silent) {
 
 
 // ═══════════════════════════════════════════════════
-// INIT
+// INIT & SCROLL HANDLING
 // ═══════════════════════════════════════════════════
 
 loadState();
 frLoad();
 // Migrate old entries that don't have accountId
 state.entries.forEach(e=>{ if(!e.accountId) e.accountId='acc_1'; });
-ensureStockState();
 // Set chart month to current month by default
 chartMonthFilter = getCurrentMonth();
 logMonthFilter = getCurrentMonth();
@@ -4378,6 +4695,67 @@ renderAll();
 setInterval(renderHeader, 60000);
 setInterval(()=>frSyncNow(true), 30000);
 frSyncNow(true);
+
+// ── Smooth Month-Total collapse on scroll ──
+// Only animates grid-rows + opacity (no forced reflow of the rest of the
+// page), and uses a short cooldown after each toggle so a direction
+// reversal can't interrupt an animation that's still mid-flight —
+// that mid-flight interruption is what causes visible stutter.
+(function () {
+  const wrap = document.getElementById('headerBudgetWrap');
+  if (!wrap) return;
+  let lastY = window.scrollY;
+  let ticking = false;
+  let minimized = false;
+  let lastToggleAt = 0;
+  const COOLDOWN_MS = 260;   // a little longer than the CSS transition
+  const THRESHOLD = 10;      // ignore small jitters near a direction change
+
+  function setMinimized(next) {
+    if (next === minimized) return;
+    const now = performance.now();
+    if (now - lastToggleAt < COOLDOWN_MS) return;
+    minimized = next;
+    lastToggleAt = now;
+    wrap.classList.toggle('minimized', minimized);
+  }
+
+  function onScrollFrame() {
+    const y = Math.max(0, window.scrollY);
+    const delta = y - lastY;
+    lastY = y;
+    ticking = false;
+
+    if (y <= 8) { setMinimized(false); return; }
+    if (delta > THRESHOLD) setMinimized(true);
+    else if (delta < -THRESHOLD) setMinimized(false);
+  }
+
+  function onScroll() {
+    if (!ticking) {
+      requestAnimationFrame(onScrollFrame);
+      ticking = true;
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // Touch fallback for mobile browsers that don't fire scroll events smoothly
+  let touchStartY = 0;
+  let touchLastY = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchStartY = touchLastY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    const y = e.touches[0].clientY;
+    const dy = touchLastY - y; // positive = finger moving up = scrolling down
+    touchLastY = y;
+    if (window.scrollY <= 8) { setMinimized(false); return; }
+    if (dy > 2) setMinimized(true);
+    else if (dy < -2) setMinimized(false);
+  }, { passive: true });
+})();
+
 </script>
 </body>
 </html>
