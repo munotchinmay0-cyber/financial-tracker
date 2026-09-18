@@ -88,6 +88,18 @@ body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text
   will-change: grid-template-rows;
 }
 .header-budget-wrap.minimized { grid-template-rows: 0fr; }
+
+/* Hide the Month Total budget box on the Log and Charts pages only,
+   so those two views stay clean with more breathing room. It still
+   shows normally on Quick, Friends and Settings. */
+body[data-page="log"] .header-budget-wrap,
+body[data-page="charts"] .header-budget-wrap {
+  display: none;
+}
+body[data-page="log"] .header,
+body[data-page="charts"] .header {
+  padding-bottom: 8px;
+}
 .header-budget-inner {
   min-height: 0;
   overflow: hidden;
@@ -285,6 +297,15 @@ canvas { width: 100% !important; }
 .photo-thumb { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 .photo-remove-btn { position: absolute; top: -6px; right: -6px; background: #e11d48; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 .log-photo-btn { font-size: 11px; padding: 2px 8px; background: rgba(79,70,229,0.1); border: 1px solid rgba(79,70,229,0.2); border-radius: 6px; color: var(--accent); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; }
+
+/* ── Receipts (snap now, settle later) ── */
+.receipt-cta-btn { width: 100%; padding: 13px; background: var(--accent-soft); border: 1px solid rgba(79,70,229,0.28); border-radius: var(--radius-sm); color: var(--accent); font-size: 13px; font-weight: 600; font-family: 'Sora', sans-serif; cursor: pointer; margin-bottom: 8px; text-align: left; display: flex; align-items: center; gap: 10px; transition: all 0.2s; }
+.receipt-cta-btn:active { transform: scale(0.99); }
+.receipts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; margin-top: 4px; }
+.receipt-thumb-btn { position: relative; padding: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; cursor: pointer; background: var(--surface); aspect-ratio: 1; display: block; }
+.receipt-thumb-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.receipt-thumb-date { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,0.62); color: #fff; font-size: 9px; padding: 3px 4px; text-align: center; font-family: 'JetBrains Mono', monospace; }
+.receipts-modal-body { max-height: 60vh; overflow-y: auto; }
 
 /* ── Past Modal ── */
 .past-modal { background: var(--card); border-radius: 24px 24px 0 0; padding: 24px 24px 44px; width: 100%; max-width: 480px; transform: translateY(40px); transition: transform 0.25s cubic-bezier(.4,0,.2,1); border-top: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
@@ -789,7 +810,7 @@ body { background:
   <div class="header-top">
     <div>
       <div class="header-date" id="headerDate"></div>
-      <div class="header-title">₹ <span>Finance</span> Pro</div>
+      <div class="header-title" id="headerTitle">₹ <span>Finance</span> Pro</div>
     </div>
     <div style="text-align:right">
       <div style="font-size:11px;color:var(--muted)" id="monthLabel"></div>
@@ -833,6 +854,11 @@ body { background:
 <!-- ══════════════════════════════════════════════ -->
 <div class="page active" id="page-home">
   <div class="section">
+    <input type="file" id="receiptCaptureInput" accept="image/*" capture="environment" style="display:none" onchange="handleReceiptPhotoSelected(event)">
+    <button class="receipt-cta-btn" onclick="document.getElementById('receiptCaptureInput').click()">📸 Snap a Receipt — settle later</button>
+  </div>
+
+  <div class="section">
     <div class="section-header">
       <div class="section-label">Quick Tap ⚡</div>
     </div>
@@ -850,6 +876,9 @@ body { background:
 <!-- PAGE: FULL LOG -->
 <!-- ══════════════════════════════════════════════ -->
 <div class="page" id="page-log">
+  <div class="section">
+    <button class="receipt-cta-btn" onclick="openReceiptsGrid()">🧾 See all receipts (<span id="receiptsCountLabel">0</span>)</button>
+  </div>
   <div class="section">
     <div class="section-header" style="margin-top:4px">
       <div class="section-label">Expense Log</div>
@@ -917,6 +946,14 @@ body { background:
     </div>
 
     <div class="settings-section">
+      <div class="settings-title">App Name</div>
+      <div class="budget-setting-row">
+        <input class="budget-setting-input" type="text" id="appNameInput" placeholder="Your name, e.g. Chinmay" />
+        <button class="save-btn" onclick="saveAppName()">Save</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
       <div class="settings-title">Bank Accounts</div>
       <div id="accountSettings"></div>
       <button class="add-quick-btn" onclick="addAccount()">+ Add Account</button>
@@ -938,6 +975,7 @@ body { background:
       <button class="export-btn" onclick="openImportModal()" style="color:var(--green);border-color:rgba(5,150,105,0.28);background:rgba(5,150,105,0.05)">📥 Import from CSV / Excel</button>
       <button class="export-btn" onclick="exportPDF()">📄 Export as PDF (Beautiful)</button>
       <button class="export-btn" onclick="exportCSV()">📤 Export as CSV</button>
+      <button class="export-btn" onclick="exportXLSX()">📊 Export as Excel (.xlsx) — importable straight into Google Sheets</button>
       <button class="export-btn" onclick="clearAllData()" style="color:var(--accent2);border-color:var(--accent2)">🗑️ Clear All Data</button>
     </div>
 
@@ -1245,6 +1283,48 @@ body { background:
   </div>
 </div>
 
+<!-- ── RECEIPTS GRID MODAL ── -->
+<div class="modal-overlay" id="receiptsGridOverlay" onclick="if(event.target===this)closeReceiptsGrid()">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🧾 Pending Receipts</div>
+    <div class="modal-sub" style="margin-bottom:14px">Tap a receipt to settle it as an expense</div>
+    <div class="receipts-modal-body">
+      <div class="receipts-grid" id="receiptsGridContent"></div>
+    </div>
+    <button class="cancel-btn" onclick="closeReceiptsGrid()">Close</button>
+  </div>
+</div>
+
+<!-- ── SETTLE RECEIPT MODAL ── -->
+<div class="modal-overlay" id="settleReceiptOverlay" onclick="if(event.target===this)closeSettleReceipt()">
+  <div class="past-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🧾 Settle Receipt</div>
+    <div class="modal-sub" style="margin-bottom:16px">Turn this snapped photo into a logged expense</div>
+    <div style="text-align:center;margin-bottom:14px">
+      <img id="settleReceiptPhoto" src="" alt="Receipt" style="max-width:100%;max-height:220px;border-radius:14px;border:1px solid var(--border);object-fit:contain">
+    </div>
+    <div class="past-field">
+      <label>Account</label>
+      <select id="settleAccount"></select>
+    </div>
+    <div class="past-row">
+      <div class="past-field"><label>Category</label><select id="settleCategory" onchange="updateSettleSubs()"></select></div>
+      <div class="past-field"><label>Sub-Category</label><select id="settleSubcat"></select></div>
+    </div>
+    <div class="past-field"><label>Item Name</label><input type="text" id="settleName" placeholder="e.g. Chai, Lunch..." /></div>
+    <div class="past-field">
+      <label>Quick Amounts</label>
+      <div class="past-amount-grid" id="settleAmountGrid"></div>
+      <input type="number" id="settleAmount" placeholder="Or enter custom amount" inputmode="numeric" style="margin-top:8px" />
+    </div>
+    <div class="past-field"><label>Note (optional)</label><textarea id="settleNote" rows="2" placeholder="Any details..."></textarea></div>
+    <button class="confirm-btn" onclick="confirmSettleReceipt()" style="background:var(--accent2);margin-top:8px">Save as Expense</button>
+    <button class="cancel-btn" onclick="closeSettleReceipt()">Cancel</button>
+  </div>
+</div>
+
 <!-- ── CSV IMPORT MODAL ── -->
 <div class="import-modal-overlay" id="importModalOverlay">
   <div class="import-modal" id="importModal">
@@ -1316,6 +1396,8 @@ let state = {
   ],
   entries: [],
   specialTheme: 'none', // 'none' | 'pink' | 'hp'
+  appName: '', // custom name shown in header title, e.g. "Chinmay"
+  receipts: [], // { id, ts, date, photo, amount, note, accountId, category } — snapped now, settled later
 };
 
 // Log filter state
@@ -1355,6 +1437,8 @@ function loadState() {
       if (!state.deposits) state.deposits = [];
       if (!state.activeAccount) state.activeAccount = state.accounts[0]?.id;
       if (!state.specialTheme) state.specialTheme = 'none';
+      if (state.appName === undefined || state.appName === null) state.appName = '';
+      if (!state.receipts) state.receipts = [];
     }
   } catch(e) {}
   applySpecialTheme();
@@ -1416,6 +1500,33 @@ function getAllMonths() {
 function getCurrentMonth() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ═══════════════════════════════════════════════════
+// APP NAME
+// ═══════════════════════════════════════════════════
+function applyAppName() {
+  const name = (state.appName || '').trim();
+  const titleStr = name ? `₹ ${name} Budget Track` : '₹ Finance Pro';
+  const el = document.getElementById('headerTitle');
+  if (el) {
+    el.innerHTML = name
+      ? `₹ <span>${escapeHtml(name)}</span> Budget Track`
+      : `₹ <span>Finance</span> Pro`;
+  }
+  document.title = titleStr;
+}
+
+function saveAppName() {
+  const val = document.getElementById('appNameInput').value.trim();
+  state.appName = val;
+  saveState();
+  applyAppName();
+  showToast(val ? `App renamed to "${val}"!` : 'App name reset to default');
 }
 
 // ═══════════════════════════════════════════════════
@@ -1995,6 +2106,172 @@ function confirmPastAdd() {
 }
 
 // ═══════════════════════════════════════════════════
+// RECEIPTS — snap now, settle later
+// ═══════════════════════════════════════════════════
+function handleReceiptPhotoSelected(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // Resize so the longest side is ~1000px, then compress to a modest-quality JPEG
+      // (same downscale-via-canvas approach used for friend avatar photos, minus the square crop).
+      const maxDim = 1000;
+      let w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w >= h) { h = Math.round(h * (maxDim / w)); w = maxDim; }
+        else { w = Math.round(w * (maxDim / h)); h = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.72);
+
+      const receipt = {
+        id: 'rcpt_' + Date.now(),
+        ts: Date.now(),
+        date: todayStr(),
+        photo: dataUrl,
+        amount: null,
+        note: '',
+        accountId: state.activeAccount,
+        category: null,
+      };
+      state.receipts.unshift(receipt);
+      saveState();
+      renderReceiptsCount();
+      showToast('Receipt saved — settle it anytime from Log → See all receipts.');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function renderReceiptsCount() {
+  const el = document.getElementById('receiptsCountLabel');
+  if (el) el.textContent = state.receipts.length;
+}
+
+function openReceiptsGrid() {
+  renderReceiptsGrid();
+  document.getElementById('receiptsGridOverlay').classList.add('open');
+}
+
+function closeReceiptsGrid() {
+  document.getElementById('receiptsGridOverlay').classList.remove('open');
+}
+
+function renderReceiptsGrid() {
+  const el = document.getElementById('receiptsGridContent');
+  if (!el) return;
+  if (state.receipts.length === 0) {
+    el.innerHTML = `<div class="empty-log" style="grid-column:1/-1"><span class="e-icon">🧾</span>No pending receipts.</div>`;
+    return;
+  }
+  const sorted = [...state.receipts].sort((a,b) => b.ts - a.ts);
+  el.innerHTML = sorted.map(r => {
+    const d = new Date(r.date + 'T00:00:00').toLocaleDateString('en-IN', {day:'numeric', month:'short'});
+    return `<button type="button" class="receipt-thumb-btn" onclick="openSettleReceipt('${r.id}')">
+      <img src="${r.photo}" loading="lazy" alt="Receipt from ${d}">
+      <span class="receipt-thumb-date">${d}</span>
+    </button>`;
+  }).join('');
+}
+
+let currentSettleReceiptId = null;
+let settleSelectedAmount = null;
+
+function openSettleReceipt(receiptId) {
+  const r = state.receipts.find(x => x.id === receiptId);
+  if (!r) return;
+  currentSettleReceiptId = receiptId;
+  settleSelectedAmount = null;
+
+  document.getElementById('settleReceiptPhoto').src = r.photo;
+
+  const accSel = document.getElementById('settleAccount');
+  accSel.innerHTML = state.accounts.map(a =>
+    `<option value="${a.id}" ${a.id === (r.accountId || state.activeAccount) ? 'selected' : ''}>${a.name}</option>`
+  ).join('');
+
+  const catSel = document.getElementById('settleCategory');
+  catSel.innerHTML = state.categories.map(c =>
+    `<option value="${c}" ${c === r.category ? 'selected' : ''}>${c}</option>`
+  ).join('');
+  updateSettleSubs();
+
+  document.getElementById('settleName').value = '';
+  document.getElementById('settleNote').value = r.note || '';
+  document.getElementById('settleAmount').value = r.amount || '';
+  document.getElementById('settleAmountGrid').innerHTML = PAST_QUICK_AMOUNTS.map(amt =>
+    `<button type="button" class="past-amount-chip" onclick="selectSettleAmount(${amt},this)">${fmt(amt)}</button>`
+  ).join('');
+
+  closeReceiptsGrid();
+  document.getElementById('settleReceiptOverlay').classList.add('open');
+}
+
+function updateSettleSubs() {
+  const cat = document.getElementById('settleCategory').value;
+  const subs = SUBCAT_MAP[cat] || ['General'];
+  const quickSubs = state.quickItems.filter(q => q.category === cat).map(q => q.subcategory);
+  const allSubs = [...new Set([...subs, ...quickSubs])];
+  document.getElementById('settleSubcat').innerHTML = allSubs.map(s => `<option value="${s}">${s}</option>`).join('');
+}
+
+function selectSettleAmount(val, el) {
+  settleSelectedAmount = val;
+  document.querySelectorAll('#settleAmountGrid .past-amount-chip').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('settleAmount').value = '';
+}
+
+function closeSettleReceipt() {
+  document.getElementById('settleReceiptOverlay').classList.remove('open');
+  currentSettleReceiptId = null;
+  settleSelectedAmount = null;
+}
+
+function confirmSettleReceipt() {
+  const r = state.receipts.find(x => x.id === currentSettleReceiptId);
+  if (!r) { closeSettleReceipt(); return; }
+
+  const accountId = document.getElementById('settleAccount').value;
+  const category = document.getElementById('settleCategory').value;
+  const subcategory = document.getElementById('settleSubcat').value;
+  const name = document.getElementById('settleName').value.trim() || category;
+  const note = document.getElementById('settleNote').value.trim();
+  const customAmt = parseFloat(document.getElementById('settleAmount').value);
+  const amount = customAmt > 0 ? customAmt : settleSelectedAmount;
+  if (!amount || amount <= 0) { showToast('Please pick or enter an amount'); return; }
+
+  const catIcons = {Food:'🍽️',Courses:'📚',Family:'👨‍👩‍👧',Friends:'👫',Unnecessary:'🛍️'};
+  const matched = state.quickItems.find(q => q.category === category);
+  const icon = matched ? matched.icon : (catIcons[category] || '💰');
+
+  const entry = {
+    id: Date.now(),
+    date: r.date,
+    time: new Date(r.ts).toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'}),
+    name, icon, category, subcategory, amount, note,
+    photo: r.photo,
+    accountId,
+  };
+  state.entries.push(entry);
+  state.entries.sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
+  state.receipts = state.receipts.filter(x => x.id !== r.id);
+  saveState();
+  closeSettleReceipt();
+  renderAll();
+  renderReceiptsCount();
+  showToast(`${icon} ${fmt(amount)} logged from receipt!`);
+}
+
+// ═══════════════════════════════════════════════════
 // BUDGET MODAL
 // ═══════════════════════════════════════════════════
 function openBudgetModal() {
@@ -2174,6 +2451,7 @@ function renderWeeklyChart() {}
 // ═══════════════════════════════════════════════════
 function renderSettings() {
   document.getElementById('budgetInput').value = state.budget;
+  document.getElementById('appNameInput').value = state.appName || '';
   renderThemeSwitches();
 
   // Account settings
@@ -2539,6 +2817,19 @@ function exportCSV() {
   showToast('CSV exported!');
 }
 
+function exportXLSX() {
+  // Note: a real, direct push to Google Sheets needs OAuth and isn't possible from a
+  // static local HTML file — this .xlsx can simply be opened/imported into Google Sheets.
+  const entries = getEntriesForAccount(state.activeAccount);
+  const rows = [['Date','Time','Name','Category','Subcategory','Amount','Note','Account']];
+  entries.forEach(e=>rows.push([e.date,e.time,e.name,e.category,e.subcategory,e.amount,e.note||'',accountById(e.accountId||'acc_1').name]));
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Expenses');
+  XLSX.writeFile(wb, `expenses_${activeAccount().name.replace(/\s+/g,'_')}_${todayStr()}.xlsx`);
+  showToast('Excel file exported!');
+}
+
 function clearAllData() {
   if (confirm('Clear ALL expense data? This cannot be undone.')) {
     state.entries = []; state.deposits = []; state.activeDepositId = null;
@@ -2552,6 +2843,7 @@ function clearAllData() {
 const PAGES = ['home','log','charts','friends','settings'];
 
 function showPage(name) {
+  document.body.setAttribute('data-page', name);
   PAGES.forEach(p => {
     const pageEl = document.getElementById('page-'+p);
     if (pageEl) pageEl.classList.toggle('active', p===name);
@@ -2587,6 +2879,7 @@ function renderAll() {
   renderHeader();
   renderQuickGrid();
   renderTodayLog();
+  renderReceiptsCount();
 }
 
 // ═══════════════════════════════════════════════════
@@ -4811,6 +5104,7 @@ state.entries.forEach(e=>{ if(!e.accountId) e.accountId='acc_1'; });
 // Set chart month to current month by default
 chartMonthFilter = getCurrentMonth();
 logMonthFilter = getCurrentMonth();
+applyAppName();
 renderAll();
 setInterval(renderHeader, 60000);
 setInterval(()=>frSyncNow(true), 30000);
