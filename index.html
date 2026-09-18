@@ -40,7 +40,36 @@
   --shadow: 0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -12px rgba(15,23,42,0.14);
   --shadow-lg: 0 2px 6px rgba(15,23,42,0.05), 0 18px 40px -18px rgba(15,23,42,0.28);
 }
+
+/* ── Fun Themes (Settings → Fun Themes) ── */
+body.theme-pink {
+  --bg: #fff0f7; --surface: #ffffff; --card: #fff5fa; --border: #f9c9de;
+  --accent: #ec4899; --accent-soft: #fde6f1; --accent2: #f472b6; --accent2-soft: #ffe4f0;
+  --text: #6b1d43; --muted: #b3577e;
+}
+body.theme-pink .header-budget { position: relative; overflow: visible; }
+body.theme-pink .header-budget::after {
+  content: '🎀'; position: absolute; top: -18px; right: 16px; font-size: 30px;
+  filter: drop-shadow(0 3px 6px rgba(236,72,153,0.4)); transform: rotate(8deg); pointer-events: none;
+}
+
+body.theme-hp {
+  --bg: #f4ede1; --surface: #fbf6ec; --card: #f8f1e2; --border: #d8c49a;
+  --accent: #740001; --accent-soft: #f3d9d9; --accent2: #d3a625; --accent2-soft: #faf0d7;
+  --text: #2b1d0e; --muted: #7a6a4f;
+}
+body.theme-hp .header-budget { position: relative; overflow: visible; }
+body.theme-hp .header-budget::after {
+  content: '⚡'; position: absolute; top: -16px; right: 16px; font-size: 28px; color: #d3a625;
+  filter: drop-shadow(0 3px 6px rgba(116,0,1,0.4)); pointer-events: none;
+}
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+/* Remove native number-input spinner arrows everywhere — tiny, easy to
+   mis-tap on mobile. Users type/clear amounts instead. */
+input[type="number"] { -moz-appearance: textfield; }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 #app { max-width: 480px; margin: 0 auto; padding-bottom: 90px; }
 
@@ -169,6 +198,8 @@ body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text
 /* ── Charts ── */
 .charts-page { padding: 16px 20px 0; }
 .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+.chart-canvas-wrap { position: relative; width: 100%; height: 260px; }
+.chart-canvas-wrap canvas { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
 .chart-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
 canvas { width: 100% !important; }
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
@@ -191,6 +222,19 @@ canvas { width: 100% !important; }
 .settings-page { padding: 16px 20px 0; }
 .settings-section { margin-bottom: 20px; }
 .settings-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+
+/* Fun theme toggle switches */
+.theme-switch-row { display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+.theme-switch-txt { display: flex; flex-direction: column; gap: 3px; }
+.theme-switch-txt b { font-size: 14px; font-weight: 700; }
+.theme-switch-txt span { font-size: 11.5px; color: var(--muted); }
+.theme-switch { flex-shrink: 0; width: 50px; height: 30px; border-radius: 99px; border: none; background: var(--border);
+  position: relative; cursor: pointer; transition: background 0.2s ease; padding: 0; }
+.theme-switch.on { background: var(--accent); }
+.theme-switch-knob { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.22s cubic-bezier(.4,0,.2,1); }
+.theme-switch.on .theme-switch-knob { transform: translateX(20px); }
 .quick-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
 .qi-icon-pick { font-size: 20px; cursor: pointer; }
 .qi-inputs { flex: 1; display: flex; flex-direction: column; gap: 4px; }
@@ -704,7 +748,12 @@ body { background:
   padding: 16px; font-size: 17px; color: var(--text); font-family: 'JetBrains Mono', monospace; outline: none; }
 .fr-input.text { font-family: 'Sora', sans-serif; font-size: 15px; }
 .fr-input:focus { border-color: var(--accent); }
-.fr-pick-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+.fr-pick-grid { display: flex; gap: 9px; flex-wrap: wrap; }
+.fr-pick { flex-shrink: 0; padding: 13px 18px; min-height: 46px; border-radius: 14px; border: 1.5px solid var(--border);
+  background: var(--surface); color: var(--text); font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s; }
+.fr-pick.sel { background: var(--accent); border-color: var(--accent); color: #fff; }
+.fr-pick:active { transform: scale(0.96); }
 .fr-mode-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .fr-mode { padding: 15px 8px; border-radius: 14px; border: 1.5px solid var(--border); background: var(--surface);
   font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; }
@@ -845,7 +894,9 @@ body { background:
     <div class="chart-card" style="padding-bottom:20px">
       <div class="chart-title">Daily Spending</div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Tap any day to inspect daily total</div>
-      <canvas id="dailyChart" height="260" style="width:100%;height:260px;touch-action:manipulation"></canvas>
+      <div class="chart-canvas-wrap">
+        <canvas id="dailyChart" style="touch-action:manipulation"></canvas>
+      </div>
     </div>
 
   </div>
@@ -888,6 +939,29 @@ body { background:
       <button class="export-btn" onclick="exportPDF()">📄 Export as PDF (Beautiful)</button>
       <button class="export-btn" onclick="exportCSV()">📤 Export as CSV</button>
       <button class="export-btn" onclick="clearAllData()" style="color:var(--accent2);border-color:var(--accent2)">🗑️ Clear All Data</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">Fun Themes</div>
+      <div class="theme-switch-row">
+        <div class="theme-switch-txt">
+          <b>🎀 Turn Pink Mode</b>
+          <span>Soft pink colours everywhere + a bow on Month Total</span>
+        </div>
+        <button class="theme-switch" id="pinkModeSwitch" onclick="toggleSpecialTheme('pink')" aria-label="Toggle pink mode">
+          <span class="theme-switch-knob"></span>
+        </button>
+      </div>
+      <div class="theme-switch-row">
+        <div class="theme-switch-txt">
+          <b>⚡ Harry Potter Theme</b>
+          <span>Maroon &amp; gold, wizarding-world colours</span>
+        </div>
+        <button class="theme-switch" id="hpModeSwitch" onclick="toggleSpecialTheme('hp')" aria-label="Toggle Harry Potter theme">
+          <span class="theme-switch-knob"></span>
+        </button>
+      </div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:8px;padding:0 2px">Turn either one off to go back to the normal theme. Everything else in Settings stays the same.</div>
     </div>
 
   </div>
@@ -1241,6 +1315,7 @@ let state = {
     { id:8, icon:'🛍️', name:'Other',   category:'Unnecessary', prices:[100,200],     subcategory:'Misc' },
   ],
   entries: [],
+  specialTheme: 'none', // 'none' | 'pink' | 'hp'
 };
 
 // Log filter state
@@ -1248,6 +1323,26 @@ let logRangeFilter = 'all';
 let logMonthFilter = 'all';
 let chartMonthFilter = 'all';
 let balanceVisible = false;
+
+function applySpecialTheme() {
+  document.body.classList.remove('theme-pink', 'theme-hp');
+  if (state.specialTheme === 'pink') document.body.classList.add('theme-pink');
+  else if (state.specialTheme === 'hp') document.body.classList.add('theme-hp');
+}
+
+function toggleSpecialTheme(name) {
+  state.specialTheme = (state.specialTheme === name) ? 'none' : name;
+  saveState();
+  applySpecialTheme();
+  renderThemeSwitches();
+}
+
+function renderThemeSwitches() {
+  const pinkBtn = document.getElementById('pinkModeSwitch');
+  const hpBtn = document.getElementById('hpModeSwitch');
+  if (pinkBtn) pinkBtn.classList.toggle('on', state.specialTheme === 'pink');
+  if (hpBtn) hpBtn.classList.toggle('on', state.specialTheme === 'hp');
+}
 
 function loadState() {
   try {
@@ -1259,8 +1354,10 @@ function loadState() {
       state.accounts.forEach(a=>{ if (COLOR_MIGRATE[a.color]) a.color = COLOR_MIGRATE[a.color]; });
       if (!state.deposits) state.deposits = [];
       if (!state.activeAccount) state.activeAccount = state.accounts[0]?.id;
+      if (!state.specialTheme) state.specialTheme = 'none';
     }
   } catch(e) {}
+  applySpecialTheme();
 }
 
 function saveState() {
@@ -2077,6 +2174,7 @@ function renderWeeklyChart() {}
 // ═══════════════════════════════════════════════════
 function renderSettings() {
   document.getElementById('budgetInput').value = state.budget;
+  renderThemeSwitches();
 
   // Account settings
   const accEl = document.getElementById('accountSettings');
@@ -2464,7 +2562,7 @@ function showPage(name) {
   const idx = PAGES.indexOf(name);
   const tabs = document.querySelectorAll('.nav-tab');
   if (tabs[idx]) tabs[idx].classList.add('active');
-  if (name==='charts') renderCharts();
+  if (name==='charts') requestAnimationFrame(() => requestAnimationFrame(renderCharts));
   if (name==='log') renderFullLog();
   if (name==='settings') renderSettings();
   if (name==='friends') { renderFriendsPage(); frSyncNow(true); }
@@ -4444,13 +4542,35 @@ function frRenderShareEditor() {
     const who = code === 'me' ? 'You' : frNameOf(code);
     if (frDraft.mode === 'equal') {
       return `<div class="fr-custom-row"><div class="nm">${who}</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700">${fmt(shares[code] || 0)}</div></div>`;
+        <div id="frShareVal_${code}" style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700">${fmt(shares[code] || 0)}</div></div>`;
     }
     return `<div class="fr-custom-row"><div class="nm">${who}</div>
-      <input type="number" inputmode="numeric" value="${shares[code] || 0}" oninput="frSetCustom('${code}', this.value)"></div>`;
+      <input type="number" inputmode="decimal" id="frShareInput_${code}" value="${shares[code] || 0}" oninput="frSetCustom('${code}', this.value)"></div>`;
   }).join('') + (frDraft.mode === 'custom'
-    ? `<div style="font-size:12px;color:var(--muted);padding:2px 4px">Assigned ${fmt(Object.values(shares).reduce((a, b) => a + Number(b || 0), 0))} of ${fmt(frDraft.amount)}</div>`
+    ? `<div id="frAssignedSummary" style="font-size:12px;color:var(--muted);padding:2px 4px">Assigned ${fmt(Object.values(shares).reduce((a, b) => a + Number(b || 0), 0))} of ${fmt(frDraft.amount)}</div>`
     : '');
+}
+
+// Updates the computed numbers in place (no innerHTML rebuild) so an input
+// the user is actively typing in never loses focus mid-keystroke.
+function frUpdateShareDisplay() {
+  if (!frDraft.amount || !frDraft.selected.length) return;
+  const shares = frComputeShares();
+  const people = ['me', ...frDraft.selected];
+  const active = document.activeElement;
+  people.forEach(code => {
+    if (frDraft.mode === 'equal') {
+      const valEl = document.getElementById('frShareVal_' + code);
+      if (valEl) valEl.textContent = fmt(shares[code] || 0);
+    } else {
+      const inp = document.getElementById('frShareInput_' + code);
+      if (inp && inp !== active) inp.value = shares[code] || 0;
+    }
+  });
+  if (frDraft.mode === 'custom') {
+    const sum = document.getElementById('frAssignedSummary');
+    if (sum) sum.textContent = 'Assigned ' + fmt(Object.values(shares).reduce((a, b) => a + Number(b || 0), 0)) + ' of ' + fmt(frDraft.amount);
+  }
 }
 
 function frComputeShares() {
@@ -4486,7 +4606,7 @@ function frToggleFriend(code) {
   frRenderSplitModal();
 }
 function frSetMode(m) { frDraft.mode = m; frRenderSplitModal(); }
-function frSetCustom(code, v) { frDraft.custom[code] = Number(v || 0); frRenderShareEditor(); }
+function frSetCustom(code, v) { frDraft.custom[code] = Number(v || 0); frUpdateShareDisplay(); }
 function frToggleLog() { frDraft.alsoLog = !frDraft.alsoLog; frRenderSplitModal(); }
 
 async function frConfirmSplit() {
